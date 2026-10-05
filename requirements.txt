@@ -1,0 +1,24 @@
+asgiref==3.12.1
+Django==6.1.1
+sqlparse==0.5.5
+tzdata==2026.3
+# ML stack - pinned to match detector/ml/train_env.json (the exact versions
+# model_pipeline.pkl was trained/saved with). If you retrain with different
+# versions, update BOTH this file and train_env.json, or you will risk the
+# same 'LogisticRegression' object has no attribute 'multi_class'-style
+# version-incompatibility bug this project hit before.
+scikit-learn==1.8.0
+numpy==2.4.4
+scipy==1.17.1
+joblib==1.5.3
+pandas==2.2.3
+pypdf==5.1.0
+beautifulsoup4==4.12.3
+lxml==5.3.0
+requests==2.32.3
+reportlab==4.2.5
+python-dotenv==1.0.1
+dj-database-url==2.3.0
+gunicorn==23.0.0
+whitenoise==6.8.2
+chardet>=3.0.2,<6

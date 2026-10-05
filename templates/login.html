@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Login · TruthLens AI{% endblock %}
+{% block content %}
+<div style="max-width: 420px; margin: 60px auto 0;">
+    <div style="text-align: center; margin-bottom: 24px;">
+        <div class="result-tag">AUTHENTICATION</div>
+        <h1 class="result-title" style="font-size: 1.6rem;">Sign in to TruthLens</h1>
+        <p style="color: #94a3b8; font-size: 0.9rem; margin: 0;">Access your news verification dashboard and history</p>
+    </div>
+    <form method="POST" class="card" style="padding: 32px 28px;">
+        {% csrf_token %}
+        <label for="username" class="card-section-label" style="display: block; margin-bottom: 6px;">Username</label>
+        <input type="text" name="username" id="username" placeholder="Enter username" style="width: 100%; background: #0c1322; border: 1px solid #1e293b; border-radius: 8px; padding: 12px 14px; color: #fff; font-size: 0.95rem; margin-bottom: 16px; outline: none;" required>
+
+        <label for="password" class="card-section-label" style="display: block; margin-bottom: 6px;">Password</label>
+        <input type="password" name="password" id="password" placeholder="Enter password" style="width: 100%; background: #0c1322; border: 1px solid #1e293b; border-radius: 8px; padding: 12px 14px; color: #fff; font-size: 0.95rem; margin-bottom: 24px; outline: none;" required>
+
+        <button type="submit" class="btn-cyan" style="width: 100%; padding: 12px; font-size: 1rem;">Sign In</button>
+    </form>
+    <p style="text-align: center; margin-top: 18px; color: #94a3b8; font-size: 0.9rem;">
+        Don't have an account? <a href="{% url 'register' %}" style="color: #22d3ee; font-weight: 600;">Create one</a>
+    </p>
+</div>
+{% endblock %}

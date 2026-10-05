@@ -1,0 +1,149 @@
+{
+  "model_selected": "calibrated_linear_svc_C1.0",
+  "selection_criterion": "highest validation macro-F1 (test set untouched during selection)",
+  "random_seed": 42,
+  "dataset_size": 43916,
+  "train_size": 30739,
+  "validation_size": 6589,
+  "test_size": 6588,
+  "preprocessing": "detector.preprocessing.clean_text (shared with inference)",
+  "validation_metrics_all_candidates": {
+    "logistic_regression_C0.1": {
+      "accuracy": 0.9289725299741994,
+      "precision": 0.9118600129617628,
+      "recall": 0.9348837209302325,
+      "f1_score": 0.9232283464566929,
+      "f1_macro": 0.9285726595316506,
+      "roc_auc": 0.9779803560637496
+    },
+    "calibrated_linear_svc_C0.1": {
+      "accuracy": 0.9596296858400364,
+      "precision": 0.9513157894736842,
+      "recall": 0.9607973421926911,
+      "f1_score": 0.9560330578512397,
+      "f1_macro": 0.9593577186001429,
+      "roc_auc": 0.9902964784424462
+    },
+    "logistic_regression_C0.3": {
+      "accuracy": 0.947640006070724,
+      "precision": 0.9347471451876019,
+      "recall": 0.9518272425249169,
+      "f1_score": 0.9432098765432099,
+      "f1_macro": 0.9473194251081529,
+      "roc_auc": 0.9854183549479755
+    },
+    "calibrated_linear_svc_C0.3": {
+      "accuracy": 0.9669145545606314,
+      "precision": 0.9607260726072607,
+      "recall": 0.967109634551495,
+      "f1_score": 0.963907284768212,
+      "f1_macro": 0.9666832585230805,
+      "roc_auc": 0.9931127405249708
+    },
+    "logistic_regression_C1.0": {
+      "accuracy": 0.9611473668234937,
+      "precision": 0.9517716535433071,
+      "recall": 0.9637873754152824,
+      "f1_score": 0.9577418289864642,
+      "f1_macro": 0.9608933864033444,
+      "roc_auc": 0.9909431075886562
+    },
+    "calibrated_linear_svc_C1.0": {
+      "accuracy": 0.9696463803308545,
+      "precision": 0.9649238914626076,
+      "recall": 0.9687707641196013,
+      "f1_score": 0.96684350132626,
+      "f1_macro": 0.9694279079539221,
+      "roc_auc": 0.9942882020349418
+    },
+    "multinomial_nb": {
+      "accuracy": 0.9072696919107603,
+      "precision": 0.88384,
+      "recall": 0.9176079734219269,
+      "f1_score": 0.9004074979625102,
+      "f1_macro": 0.9068273468798778,
+      "roc_auc": 0.9621987433153343
+    }
+  },
+  "test_metrics_selected_model": {
+    "accuracy": 0.9682756527018822,
+    "precision": 0.9642028505137554,
+    "recall": 0.9664451827242525,
+    "f1_score": 0.9653227144516343,
+    "f1_macro": 0.9680439282147666,
+    "roc_auc": 0.9938320931346788
+  },
+  "test_confusion_matrix_labels": [
+    "REAL",
+    "FAKE"
+  ],
+  "test_confusion_matrix": [
+    [
+      3470,
+      108
+    ],
+    [
+      101,
+      2909
+    ]
+  ],
+  "test_classification_report": {
+    "FAKE": {
+      "precision": 0.9642028505137554,
+      "recall": 0.9664451827242525,
+      "f1-score": 0.9653227144516343,
+      "support": 3010.0
+    },
+    "REAL": {
+      "precision": 0.9717166059927191,
+      "recall": 0.9698155394074902,
+      "f1-score": 0.970765141977899,
+      "support": 3578.0
+    },
+    "accuracy": 0.9682756527018822,
+    "macro avg": {
+      "precision": 0.9679597282532373,
+      "recall": 0.9681303610658714,
+      "f1-score": 0.9680439282147666,
+      "support": 6588.0
+    },
+    "weighted avg": {
+      "precision": 0.968283636352209,
+      "recall": 0.9682756527018822,
+      "f1-score": 0.9682785440947697,
+      "support": 6588.0
+    }
+  },
+  "confidence_thresholds": {
+    "high": 0.8,
+    "medium": 0.7,
+    "validation_confidence_buckets": [
+      {
+        "range": "0.5-0.6",
+        "n": 85,
+        "accuracy": 0.5647058823529412
+      },
+      {
+        "range": "0.6-0.7",
+        "n": 122,
+        "accuracy": 0.6885245901639344
+      },
+      {
+        "range": "0.7-0.8",
+        "n": 178,
+        "accuracy": 0.7696629213483146
+      },
+      {
+        "range": "0.8-0.9",
+        "n": 329,
+        "accuracy": 0.8966565349544073
+      },
+      {
+        "range": "0.9-1.0",
+        "n": 5875,
+        "accuracy": 0.9914893617021276
+      }
+    ]
+  },
+  "honest_disclaimer": "These metrics describe performance on a held-out split of ONE real-world dataset (see raw/DATASET_SOURCE.md), whose topic coverage skews toward U.S. political news circa 2015-2016. They are NOT a guarantee of accuracy on arbitrary future real-world articles, especially on topics/styles underrepresented in the training data. 100% accuracy, if ever observed, would reflect this test split - not real-world infallibility."
+}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Register · TruthLens AI{% endblock %}
+{% block content %}
+<div style="max-width: 460px; margin: 60px auto 0;">
+    <div style="text-align: center; margin-bottom: 24px;">
+        <div class="result-tag">AUTHENTICATION</div>
+        <h1 class="result-title" style="font-size: 1.6rem;">Create Your Account</h1>
+        <p style="color: #94a3b8; font-size: 0.9rem; margin: 0;">Start verifying news articles with AI-powered evidence</p>
+    </div>
+    <form method="POST" class="card" style="padding: 32px 28px;">
+        {% csrf_token %}
+        {% for field in form %}
+            <div style="margin-bottom: 16px;">
+                <label for="{{ field.id_for_label }}" class="card-section-label" style="display: block; margin-bottom: 6px;">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}<p style="color: #f87171; font-size: 0.8rem; margin: 4px 0 0;">{{ field.errors|striptags }}</p>{% endif %}
+                {% if field.help_text %}<p style="color: #64748b; font-size: 0.8rem; margin: 4px 0 0;">{{ field.help_text }}</p>{% endif %}
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn-cyan" style="width: 100%; padding: 12px; font-size: 1rem; margin-top: 12px;">Create Account</button>
+    </form>
+    <p style="text-align: center; margin-top: 18px; color: #94a3b8; font-size: 0.9rem;">
+        Already have an account? <a href="{% url 'login' %}" style="color: #22d3ee; font-weight: 600;">Sign in</a>
+    </p>
+</div>
+{% endblock %}

@@ -1,0 +1,1 @@
+# detector management package

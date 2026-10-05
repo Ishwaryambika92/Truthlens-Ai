@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Detect News · TruthLens AI{% endblock %}
+{% block content %}
+
+<!-- Page Header -->
+<div style="margin-bottom: 24px;">
+    <div class="result-tag">VERIFY</div>
+    <h1 class="result-title">Verify News Article</h1>
+    <p style="color: #94a3b8; font-size: 0.94rem; margin: 0;">
+        Paste news text, upload an article file, or enter an article URL to cross-check claims against live evidence.
+    </p>
+</div>
+
+<!-- Main Verification Input Card -->
+<div class="card" style="position: relative;">
+    <form method="POST" enctype="multipart/form-data" id="detector-form">
+        {% csrf_token %}
+        <input type="hidden" name="input_type" id="input_type" value="text">
+
+        <!-- Input Source Tabs -->
+        <div style="display: flex; gap: 10px; margin-bottom: 24px; padding-bottom: 18px; border-bottom: 1px solid #1e293b; flex-wrap: wrap;">
+            <button type="button" class="btn-input-tab active" data-tab="text" id="tab-text">
+                📋 Paste Text
+            </button>
+            <button type="button" class="btn-input-tab" data-tab="pdf" id="tab-pdf">
+                📁 Upload PDF
+            </button>
+            <button type="button" class="btn-input-tab" data-tab="txt" id="tab-txt">
+                📄 Upload TXT
+            </button>
+            <button type="button" class="btn-input-tab" data-tab="url" id="tab-url">
+                🔗 Article URL
+            </button>
+        </div>
+
+        <!-- Panel 1: Paste Text -->
+        <div class="tab-panel active" data-panel="text" id="panel-text">
+            <label for="news_text" class="card-section-label" style="display: block; margin-bottom: 8px;">ARTICLE TEXT</label>
+            <textarea
+                name="news_text"
+                id="news_text"
+                rows="9"
+                placeholder="Paste the full article content, headline, or claim here..."
+                style="width: 100%; background: #0c1322; border: 1px solid #1e293b; border-radius: 8px; padding: 16px; color: #ffffff; font-family: var(--font-body); font-size: 0.95rem; line-height: 1.6; outline: none; resize: vertical; min-height: 160px;"
+            >{{ form.news_text.value|default:"" }}</textarea>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                <span style="font-size: 0.8rem; color: #64748b;">Minimum 30 characters. Include headline and body for best evidence corroboration.</span>
+                <span id="char-counter" style="font-size: 0.8rem; color: #64748b; font-family: var(--font-mono);">0 chars</span>
+            </div>
+        </div>
+
+        <!-- Panel 2: Upload PDF -->
+        <div class="tab-panel" data-panel="pdf" id="panel-pdf" style="display: none;">
+            <label class="card-section-label" style="display: block; margin-bottom: 8px;">SELECT PDF DOCUMENT</label>
+            <label for="news_file_pdf" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 24px; border: 2px dashed #273752; border-radius: 8px; background: #0c1322; cursor: pointer; transition: all 0.2s ease;" id="pdf-dropzone">
+                <span style="font-size: 2.4rem; margin-bottom: 12px;">📑</span>
+                <span style="font-size: 0.95rem; font-weight: 600; color: #ffffff;" id="pdf-file-label">Click or drag PDF document to upload</span>
+                <span style="font-size: 0.8rem; color: #64748b; margin-top: 6px;">Supported format: .pdf (up to 10 MB). Text-based PDFs only.</span>
+                <input type="file" id="news_file_pdf" accept=".pdf" style="display: none;">
+            </label>
+        </div>
+
+        <!-- Panel 3: Upload TXT -->
+        <div class="tab-panel" data-panel="txt" id="panel-txt" style="display: none;">
+            <label class="card-section-label" style="display: block; margin-bottom: 8px;">SELECT TXT FILE</label>
+            <label for="news_file_txt" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 24px; border: 2px dashed #273752; border-radius: 8px; background: #0c1322; cursor: pointer; transition: all 0.2s ease;" id="txt-dropzone">
+                <span style="font-size: 2.4rem; margin-bottom: 12px;">📄</span>
+                <span style="font-size: 0.95rem; font-weight: 600; color: #ffffff;" id="txt-file-label">Click or drag TXT file to upload</span>
+                <span style="font-size: 0.8rem; color: #64748b; margin-top: 6px;">Supported format: plain UTF-8 .txt (up to 10 MB)</span>
+                <input type="file" id="news_file_txt" accept=".txt" style="display: none;">
+            </label>
+        </div>
+
+        <!-- Panel 4: URL -->
+        <div class="tab-panel" data-panel="url" id="panel-url" style="display: none;">
+            <label for="news_url" class="card-section-label" style="display: block; margin-bottom: 8px;">ARTICLE WEB URL</label>
+            <input
+                type="url"
+                name="news_url"
+                id="news_url"
+                placeholder="https://example.com/news/article-headline"
+                value="{{ form.news_url.value|default:'' }}"
+                style="width: 100%; background: #0c1322; border: 1px solid #1e293b; border-radius: 8px; padding: 14px 16px; color: #ffffff; font-family: var(--font-body); font-size: 0.95rem; outline: none;"
+            >
+            <p style="font-size: 0.82rem; color: #64748b; margin-top: 8px; margin-bottom: 0;">
+                TruthLens will automatically retrieve the public article text, domain reputation, and SSL headers.
+            </p>
+        </div>
+
+        <!-- News Era Context Selector -->
+        <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #1e293b;">
+            <label for="temporal_preference" class="card-section-label" style="display: block; margin-bottom: 8px;">NEWS ERA CONTEXT</label>
+            <select
+                name="temporal_preference"
+                id="temporal_preference"
+                style="width: 100%; background: #0c1322; border: 1px solid #1e293b; border-radius: 8px; padding: 12px 14px; color: #ffffff; font-family: var(--font-body); font-size: 0.9rem; outline: none;"
+            >
+                <option value="auto" selected>Auto-detect (Recommended — automatically recognizes dates and contemporary events)</option>
+                <option value="current">Current / Present News (prioritizes live evidence &amp; multi-source corroboration)</option>
+                <option value="historical">Historical / Past News (evaluates stylistic ML model &amp; archival records)</option>
+            </select>
+        </div>
+
+        <!-- Submit Button -->
+        <div style="margin-top: 28px;">
+            <button type="submit" id="submit-btn" class="btn-cyan" style="width: 100%; padding: 14px 24px; font-size: 1.05rem;">
+                🔍 Verify Article Now
+            </button>
+        </div>
+
+        <!-- Professional Step-by-Step Loading Overlay -->
+        <div id="loading-overlay" style="display: none; position: absolute; inset: 0; background: rgba(11, 17, 30, 0.96); backdrop-filter: blur(8px); border-radius: 12px; z-index: 50; flex-direction: column; align-items: center; justify-content: center; padding: 32px; text-align: center;">
+            <div style="width: 48px; height: 48px; border-radius: 50%; border: 3px solid rgba(34, 211, 238, 0.15); border-top-color: #22d3ee; animation: tl-spin 1s infinite linear; margin-bottom: 22px;"></div>
+            <h3 id="loading-step-title" style="margin: 0 0 8px 0; font-size: 1.25rem; font-weight: 700; color: #ffffff;">Analyzing article writing patterns...</h3>
+            <p id="loading-step-sub" style="font-size: 0.9rem; color: #94a3b8; max-width: 420px; margin: 0 0 24px 0; line-height: 1.5;">
+                Evaluating syntax, rhetoric, and stylistic indicators learned from historical news.
+            </p>
+
+            <!-- Progress Bar -->
+            <div style="width: 320px; max-width: 100%; height: 6px; background: #1e293b; border-radius: 9999px; overflow: hidden; margin-bottom: 12px;">
+                <div id="loading-progress-bar" style="width: 25%; height: 100%; background: #22d3ee; border-radius: 9999px; transition: width 1.2s ease;"></div>
+            </div>
+            <span id="loading-percent" style="font-size: 0.8rem; color: #64748b; font-family: var(--font-mono);">Step 1 of 4</span>
+        </div>
+    </form>
+</div>
+
+<style>
+.btn-input-tab {
+    background: #141f33;
+    border: 1px solid #273752;
+    color: #94a3b8;
+    font-family: var(--font-display);
+    font-size: 0.88rem;
+    font-weight: 600;
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.btn-input-tab:hover {
+    color: #ffffff;
+    background: #1c2b48;
+}
+.btn-input-tab.active {
+    background: rgba(34, 211, 238, 0.12);
+    border-color: #22d3ee;
+    color: #22d3ee;
+}
+@keyframes tl-spin {
+    to { transform: rotate(360deg); }
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var tabs = document.querySelectorAll(".btn-input-tab");
+    var panels = document.querySelectorAll(".tab-panel");
+    var inputTypeField = document.getElementById("input_type");
+    var textarea = document.getElementById("news_text");
+    var counter = document.getElementById("char-counter");
+    var filePdf = document.getElementById("news_file_pdf");
+    var fileTxt = document.getElementById("news_file_txt");
+    var labelPdf = document.getElementById("pdf-file-label");
+    var labelTxt = document.getElementById("txt-file-label");
+    var urlInput = document.getElementById("news_url");
+    var form = document.getElementById("detector-form");
+    var submitBtn = document.getElementById("submit-btn");
+
+    function selectTab(target) {
+        tabs.forEach(function(t) {
+            t.classList.toggle("active", t.getAttribute("data-tab") === target);
+        });
+        panels.forEach(function(p) {
+            p.style.display = (p.getAttribute("data-panel") === target) ? "block" : "none";
+        });
+        inputTypeField.value = target;
+    }
+
+    tabs.forEach(function(tab) {
+        tab.addEventListener("click", function() {
+            selectTab(this.getAttribute("data-tab"));
+        });
+    });
+
+    if (textarea && counter) {
+        textarea.addEventListener("input", function() {
+            counter.textContent = this.value.length + " chars";
+        });
+        counter.textContent = textarea.value.length + " chars";
+    }
+
+    if (filePdf) {
+        filePdf.addEventListener("change", function() {
+            if (this.files.length) {
+                var f = this.files[0];
+                labelPdf.textContent = "Selected: " + f.name + " (" + (f.size / 1024).toFixed(1) + " KB)";
+                filePdf.name = "news_file";
+                if (fileTxt) fileTxt.removeAttribute("name");
+            }
+        });
+    }
+
+    if (fileTxt) {
+        fileTxt.addEventListener("change", function() {
+            if (this.files.length) {
+                var f = this.files[0];
+                labelTxt.textContent = "Selected: " + f.name + " (" + (f.size / 1024).toFixed(1) + " KB)";
+                fileTxt.name = "news_file";
+                if (filePdf) filePdf.removeAttribute("name");
+            }
+        });
+    }
+
+    // Step-by-Step Loading Pipeline
+    var steps = [
+        { title: "Analyzing article writing patterns...", sub: "Evaluating syntax, rhetoric, and stylistic indicators learned from historical news.", pct: "25%", step: "Step 1 of 4" },
+        { title: "Extracting concrete verifiable claims...", sub: "Isolating factual assertions for independent multi-source corroboration.", pct: "50%", step: "Step 2 of 4" },
+        { title: "Checking live external evidence...", sub: "Corroborating statements with accredited fact-checks and independent reporting.", pct: "75%", step: "Step 3 of 4" },
+        { title: "Synthesizing final verification verdict...", sub: "Combining stylistic signals with verified evidence to establish final assessment.", pct: "95%", step: "Step 4 of 4" }
+    ];
+
+    if (form) {
+        form.addEventListener("submit", function(e) {
+            var curTab = inputTypeField.value;
+            if (curTab === "text") {
+                var txt = (textarea ? textarea.value : "").trim();
+                if (!txt || txt.length < 30) {
+                    e.preventDefault();
+                    alert("Please enter at least 30 characters of news text.");
+                    if (textarea) textarea.focus();
+                    return;
+                }
+            } else if (curTab === "pdf") {
+                if (!filePdf || !filePdf.files.length) {
+                    e.preventDefault();
+                    alert("Please select a PDF file to upload.");
+                    return;
+                }
+            } else if (curTab === "txt") {
+                if (!fileTxt || !fileTxt.files.length) {
+                    e.preventDefault();
+                    alert("Please select a TXT file to upload.");
+                    return;
+                }
+            } else if (curTab === "url") {
+                var url = (urlInput ? urlInput.value : "").trim();
+                if (!url) {
+                    e.preventDefault();
+                    alert("Please enter an article URL.");
+                    if (urlInput) urlInput.focus();
+                    return;
+                }
+            }
+
+            var overlay = document.getElementById("loading-overlay");
+            var stepTitle = document.getElementById("loading-step-title");
+            var stepSub = document.getElementById("loading-step-sub");
+            var bar = document.getElementById("loading-progress-bar");
+            var pctLabel = document.getElementById("loading-percent");
+
+            if (overlay) overlay.style.display = "flex";
+            if (submitBtn) submitBtn.disabled = true;
+
+            var idx = 0;
+            setInterval(function() {
+                idx++;
+                if (idx < steps.length) {
+                    if (stepTitle) stepTitle.textContent = steps[idx].title;
+                    if (stepSub) stepSub.textContent = steps[idx].sub;
+                    if (bar) bar.style.width = steps[idx].pct;
+                    if (pctLabel) pctLabel.textContent = steps[idx].step;
+                }
+            }, 1800);
+        });
+    }
+});
+</script>
+
+{% endblock %}

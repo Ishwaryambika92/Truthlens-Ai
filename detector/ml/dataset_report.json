@@ -1,0 +1,49 @@
+{
+  "dataset_sources": [
+    "mcintire (fake_or_real_news.csv, ~6.3k rows, 2016 US politics)",
+    "isot (isot_true.csv + isot_fake.csv, ~44.9k rows, Reuters/worldnews + misc fake)"
+  ],
+  "license": "McIntire mirror: no explicit license attached (see raw/DATASET_SOURCE.md). ISOT: originally released for research use (Ahmed/Traore/Saad, University of Victoria); verify current redistribution terms before commercial use.",
+  "label_definition": "Labels reflect the publishing source's known reliability classification at time of labeling, not a per-claim fact-check of each article.",
+  "original_rows": 51233,
+  "original_rows_by_source": {
+    "isot": 44898,
+    "mcintire": 6335
+  },
+  "diagnosed_leakage": {
+    "mcintire_boilerplate": "WordPress/scraper chrome (e.g. 'Print This entry was posted in Uncategorized. Bookmark the permalink.', '- Advertisement -', 'Share this:') found leaking into FAKE-labeled article text - stripped.",
+    "isot_reuters_dateline": "99.2% (21,247/21,417) of ISOT True articles contain the literal substring '(Reuters)' vs. 0.04% (9/23,481) of Fake articles - trivial, extreme leakage. Wire-service datelines (Reuters/AP/AFP/CNN tags and the city/country dateline immediately preceding them) were stripped.",
+    "residual_publisher_name_leakage": "A follow-up audit after dateline stripping found 'Reuters' still appearing in 20.4% of REAL text vs 1.4% of FAKE text (inline mentions like '...told Reuters...'), plus other publisher names skewed toward FAKE (Breitbart, InfoWars, 21st Century Wire, etc). All such publisher/wire-service names are now stripped as metadata.",
+    "media_credit_and_url_leakage": "Photo-credit and social-embed scraper artifacts were found at extreme skew: 'Featured image' in 40.8% of FAKE text vs 0% of REAL, 'Getty Images' 19.7% vs 0%, embedded 'pic.twitter.com/...' links 13.9% vs 0%, and raw URLs 13% vs 0%. None of this is article content - it is leftover HTML/media caption chrome from the scrape. Stripped."
+  },
+  "invalid_label_rows_removed": 0,
+  "empty_or_too_short_rows_removed": 1051,
+  "exact_duplicates_removed": 5566,
+  "near_duplicates_removed": 700,
+  "near_duplicate_similarity_threshold": 0.92,
+  "minimum_char_length_kept": 150,
+  "final_rows": 43916,
+  "real_count": 23853,
+  "fake_count": 20063,
+  "class_distribution": {
+    "REAL": 0.5432,
+    "FAKE": 0.4568
+  },
+  "text_length_chars": {
+    "min": 150,
+    "max": 114952,
+    "mean": 2811.4,
+    "median": 2355.0
+  },
+  "label_mapping": {
+    "REAL": "REAL",
+    "FAKE": "FAKE"
+  },
+  "output_file": "detector/ml/news_dataset.csv",
+  "known_limitations": [
+    "Topic coverage still skews toward U.S./world political news even after merging two sources; generalization to sports, purely local news, or non-English content is less certain.",
+    "No reliable article date field spans both sources, so a fully time-aware split isn't possible; near-duplicate removal is the primary leakage safeguard instead.",
+    "Labels are source-reliability-based, not per-claim fact-checked.",
+    "Removing wire-service datelines and boilerplate reduces - but does not prove elimination of - all publisher-fingerprint leakage; residual stylistic differences between sources may still partially leak."
+  ]
+}

@@ -1,0 +1,1 @@
+# detector management commands package

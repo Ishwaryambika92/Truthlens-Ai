@@ -1,0 +1,102 @@
+[
+  {
+    "id": "hist_real_01",
+    "title": "Federal Reserve holds interest rates steady in November 2016 meeting",
+    "text": "WASHINGTON (Reuters) - The Federal Reserve kept interest rates unchanged on Wednesday in its last policy decision before the U.S. presidential election, but signaled it could hike rates in December as the economy gathers momentum and inflation picks up. The U.S. central bank's rate-setting committee said the economy had continued to strengthen and job gains remained solid. Policymakers also expressed increased optimism that inflation was moving toward their 2 percent target.",
+    "label": "REAL",
+    "temporal_context": "historical",
+    "published_date": "2016-11-02",
+    "domain": "reuters.com",
+    "notes": "Verified real historical Reuters report from November 2016."
+  },
+  {
+    "id": "hist_real_02",
+    "title": "NASA Juno spacecraft successfully enters Jupiter orbit after five-year journey",
+    "text": "PASADENA, Calif. — NASA's solar-powered Juno spacecraft successfully slipped into orbit around Jupiter on Monday after a five-year voyage to explore the monarch of the solar system. Ground controllers at the Jet Propulsion Laboratory erupted in cheers and high-fives when the mission team confirmed that the engine burn had ended and the craft was officially captured by Jupiter's massive gravity field. Mission scientists plan to map Jupiter's interior and atmosphere over the next twenty months.",
+    "label": "REAL",
+    "temporal_context": "historical",
+    "published_date": "2016-07-05",
+    "domain": "apnews.com",
+    "notes": "Verified real historical AP report from July 2016."
+  },
+  {
+    "id": "hist_fake_01",
+    "title": "Pope Francis shocks world endorses Donald Trump for president released statement",
+    "text": "VATICAN CITY — Pope Francis has shocked the entire world today by releasing an official statement endorsing Donald Trump for President of the United States. In the unprecedented announcement from the Holy See, the Pontiff reportedly said that Trump was the only candidate capable of defending traditional values and halting global corruption. Mainstream media networks are refusing to broadcast this bombshell declaration. Share this before social media bans it completely!",
+    "label": "FAKE",
+    "temporal_context": "historical",
+    "published_date": "2016-10-24",
+    "domain": "denverguardian.com",
+    "notes": "Well-known widely debunked historical 2016 fake news article."
+  },
+  {
+    "id": "hist_fake_02",
+    "title": "Secret FBI agent found dead after leaking thousands of classified emails in arson fire",
+    "text": "An FBI special agent believed to be responsible for leaking thousands of confidential government emails was discovered dead inside his burning home early Saturday morning. Local authorities ruled the death suspicious, but federal agents quickly took over the crime scene and seized all electronic devices. Sources close to the investigation claim the agent was preparing to testify before a secret grand jury next week. Spread this everywhere before it is silenced!",
+    "label": "FAKE",
+    "temporal_context": "historical",
+    "published_date": "2016-11-05",
+    "domain": "worldnewspolitics.com",
+    "notes": "Famous historical fabricated conspiracy story from 2016 election cycle."
+  },
+  {
+    "id": "curr_real_01",
+    "title": "James Webb Space Telescope captures detailed atmospheric composition of exoplanet in 2024",
+    "text": "Astronomers using NASA's James Webb Space Telescope have detected unprecedented chemical signatures in the atmosphere of an exoplanet, identifying water vapor, sulfur dioxide, and carbon dioxide. The findings, published in the journal Nature in 2024, represent the most comprehensive molecular inventory of an alien world to date. The research team stated that the observatory's infrared instruments allowed them to measure atmospheric transmission spectra with precision never before possible.",
+    "label": "REAL",
+    "temporal_context": "current",
+    "published_date": "2024-05-18",
+    "domain": "nature.com",
+    "notes": "Real scientific report from 2024 published in Nature regarding JWST."
+  },
+  {
+    "id": "curr_real_02",
+    "title": "European Union passes landmark Artificial Intelligence Act in 2024",
+    "text": "BRUSSELS — The European Parliament voted overwhelmingly on Wednesday to approve the world's first comprehensive set of regulatory rules for artificial intelligence. The EU AI Act categorizes AI systems by risk level, imposing strict bans on biometric surveillance deemed harmful while requiring transparency obligations for large generative foundation models. European officials stated that the regulation will take effect in phases starting later this year, establishing a global benchmark for AI governance.",
+    "label": "REAL",
+    "temporal_context": "current",
+    "published_date": "2024-03-13",
+    "domain": "theguardian.com",
+    "notes": "Real European Parliament legislation news from March 2024."
+  },
+  {
+    "id": "curr_fake_01",
+    "title": "World Health Organization announces mandatory global chip implants beginning in 2025",
+    "text": "GENEVA — The World Health Organization has officially ratified a treaty requiring all participating member nations to begin mandatory subcutaneous microchip implants for all citizens by November 2025. According to leaked conference audio, the chips will store biometric identification and global health status. Failure to comply will result in an immediate freeze of personal bank accounts. Mainstream news channels have enacted a total blackout on this developing story.",
+    "label": "FAKE",
+    "temporal_context": "current",
+    "published_date": "2024-09-02",
+    "domain": "healthfreedomwire.net",
+    "notes": "Recent viral debunked conspiracy claim regarding WHO."
+  },
+  {
+    "id": "curr_fake_02",
+    "title": "NASA discovers functional ancient pyramid structure on surface of Mars in 2024 photos",
+    "text": "WASHINGTON — High-resolution satellite images released by NASA's Perseverance rover in 2024 have revealed an unmistakable stone pyramid structure standing over three hundred feet tall on the Martian surface. Top aerospace whistleblowers claim the agency has known about the extraterrestrial artifact for months but ordered scientists to edit the rover's public image gallery. Independent researchers confirm the geometry of the Martian monument matches the Great Pyramid of Giza.",
+    "label": "FAKE",
+    "temporal_context": "current",
+    "published_date": "2024-08-20",
+    "domain": "marsdisclosuredaily.org",
+    "notes": "Recent viral debunked extraterrestrial hoax."
+  },
+  {
+    "id": "short_ambiguous_01",
+    "title": "Big update coming very soon",
+    "text": "Everyone needs to pay attention to what happens next! They won't be able to keep this a secret forever. Wake up people and watch closely.",
+    "label": "FAKE",
+    "temporal_context": "unspecified",
+    "published_date": "",
+    "domain": "socialmedia.example",
+    "notes": "Insufficient content / ambiguous rhetoric; should produce UNCERTAIN without guessing."
+  },
+  {
+    "id": "hist_real_03",
+    "title": "International Monetary Fund approves new lending program for regional infrastructure",
+    "text": "The International Monetary Fund announced Friday that its executive board has approved a three-year financial arrangement to assist developing economies with sustainable infrastructure upgrades. Under the terms of the agreement, member countries meeting transparency and fiscal criteria will be eligible for low-interest financing beginning in the second quarter of 2017. Fund officials stressed that the program is designed to enhance long-term economic resilience.",
+    "label": "REAL",
+    "temporal_context": "historical",
+    "published_date": "2017-02-17",
+    "domain": "imf.org",
+    "notes": "Verified historical economic news from early 2017."
+  }
+]

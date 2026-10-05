@@ -1,0 +1,208 @@
+{
+  "total_test_examples": 6588,
+  "total_errors": 209,
+  "error_rate": 0.0317,
+  "false_positives_real_predicted_fake": {
+    "count": 108,
+    "stats": {
+      "count": 108,
+      "avg_length": 4567.2,
+      "min_length": 155,
+      "max_length": 25015
+    },
+    "examples": [
+      {
+        "true_label": "REAL",
+        "predicted_label": "FAKE",
+        "text_excerpt": "Eric Trump \u2018Charity\u2019 Spent $880K at Family-Owned Golf Resorts. The younger Trump swears his foundation gives all of its money away to good causes. Which is true, if you don\u2019t count the cash spent on Trump-owned resorts. Or the plastic surgeon. Those are some of the beneficiaries of the Eric Trump Fo",
+        "text_length": 7086
+      },
+      {
+        "true_label": "REAL",
+        "predicted_label": "FAKE",
+        "text_excerpt": "Netanyahu\u2019s contempt for President Obama. It would not surprise me if, at the next Republican National Convention, Benjamin Netanyahu took a seat in the delegates-from-abroad section. The Israeli leader has both allied and associated himself with congressional Republicans who differ with President O",
+        "text_length": 4570
+      },
+      {
+        "true_label": "REAL",
+        "predicted_label": "FAKE",
+        "text_excerpt": "Thanks to Obama, the terrorist cancer is growing. We still do not know who or what is responsible for the crash of EgyptAir Flight 804, but we know this much for certain: The terrorist danger is growing, and it won\u2019t be contained to the Mediterranean. Responding to criticism of President Obama\u2019s han",
+        "text_length": 4640
+      },
+      {
+        "true_label": "REAL",
+        "predicted_label": "FAKE",
+        "text_excerpt": "Exclusive Clinton op-ed: I'll look for common ground. Why you should vote for me. In January, America is going to have a new president. Things are going to change \u2014 that much is certain. The question is, what kind of change are we going to have? We can build an economy that works for everyone, or st",
+        "text_length": 4015
+      },
+      {
+        "true_label": "REAL",
+        "predicted_label": "FAKE",
+        "text_excerpt": "Debating the Future of American Power Abroad. The early 2016 presidential debate already is full of conversation about when and how to use American power abroad. An equally important but often overlooked question is this: Why use American power? This part of the debate over national-security policy ",
+        "text_length": 541
+      },
+      {
+        "true_label": "REAL",
+        "predicted_label": "FAKE",
+        "text_excerpt": "If you use Facebook to get your news, please \u2014 for the love of democracy \u2014 read this first. Facebook\u2019s 1.44 billion users rely on the site for lots of things: keeping in touch, sharing photos, casual stalking. But if you get your political news through Facebook, as more than 60 percent of millennial",
+        "text_length": 7033
+      },
+      {
+        "true_label": "REAL",
+        "predicted_label": "FAKE",
+        "text_excerpt": "Hey, Berniacs: I Learned to Love Hillary and So Can You. An Obama 2008 veteran, who\u2019s been on a campaign that was in a position similar to Clinton\u2019s and that had to reconcile with Clinton, offers his thoughts. In late May of 2008, there was a bit of a misunderstanding that briefly blew the tent off ",
+        "text_length": 6736
+      },
+      {
+        "true_label": "REAL",
+        "predicted_label": "FAKE",
+        "text_excerpt": "Business booms at Trump Tower, nearby retailers hit by security and crowds. NEW YORK - Bailey White, 13, stood patiently in line with her little brother Keaton at the gift store inside the Trump Tower on Fifth Avenue on Wednesday afternoon, each clutching a stuffed terrier named Charlie that cost $3",
+        "text_length": 3907
+      },
+      {
+        "true_label": "REAL",
+        "predicted_label": "FAKE",
+        "text_excerpt": "Hillary Clinton Makes A Bipartisan Appeal on Staten Island. Hillary Clinton told a Staten Island crowd today that she was the candidate who could reach across party lines to get things done as president\u2014pointing to her experience representing the borough in the Senate and even giving public thanks t",
+        "text_length": 4370
+      },
+      {
+        "true_label": "REAL",
+        "predicted_label": "FAKE",
+        "text_excerpt": "Fox News built a f**ked-up Frankenstein, dumb, angry and divorced from facts. Now Donald Trump will devour them. Donald Trump is practically a mirror image of the Fox News psyche. Most of his speeches consist of repackaged stupidities plucked right out of the conservative mediascape. It\u2019s kind of br",
+        "text_length": 3543
+      },
+      {
+        "true_label": "REAL",
+        "predicted_label": "FAKE",
+        "text_excerpt": "On Inauguration Eve, Trumpsters party in the 'swamp' of Washington. WASHINGTON - They voted to \u201cdrain the swamp\u201d in Washington, D.C., but on the night before Donald Trump was sworn in as the 45th president of the United States, they came to wallow in it. At parties across the city, Trump supporters ",
+        "text_length": 3889
+      },
+      {
+        "true_label": "REAL",
+        "predicted_label": "FAKE",
+        "text_excerpt": "Rocker Neil Young, a Canadian, talks U.S. presidential politics. (Reprise Records corrects release date of next album to June 24 from June 17, last paragraph) By Jane Ross - Neil Young, a Canadian citizen, can\u2019t vote in the upcoming U.S. presidential election - but the 70-year-old rocker has plenty ",
+        "text_length": 2727
+      },
+      {
+        "true_label": "REAL",
+        "predicted_label": "FAKE",
+        "text_excerpt": "Trump Smirks As Beltway GOP Crumbles. With a strong win in South Carolina on Saturday night, Donald Trump has officially upended the 2016 Republican primaries. SPARTANBURG, S.C. \u2014 When Donald Trump speaks, he has a habit of gripping the lectern with all but the middle finger of his left hand. The mi",
+        "text_length": 4704
+      },
+      {
+        "true_label": "REAL",
+        "predicted_label": "FAKE",
+        "text_excerpt": "FBI tells Congress it has not changed conclusion on Clinton emails. WASHINGTON - FBI Director James Comey told Congress on Sunday a recent review of newly discovered emails did not change the agency\u2019s conclusion reached in July that no charges were warranted in the case of Hillary Clinton\u2019s use of a",
+        "text_length": 587
+      },
+      {
+        "true_label": "REAL",
+        "predicted_label": "FAKE",
+        "text_excerpt": "Donald Trump\u2019s RNC 2016 Speech Packed With Lies And Shady Stats. In Trump\u2019s America, murder is out of control, terror reigns, our enemies are ascendant and our leaders are spineless puppets. Donald Trump\u2019s speech accepting the Republican nomination at his party's convention Thursday night lasted 75 ",
+        "text_length": 4238
+      }
+    ]
+  },
+  "false_negatives_fake_predicted_real": {
+    "count": 101,
+    "stats": {
+      "count": 101,
+      "avg_length": 3970.9,
+      "min_length": 723,
+      "max_length": 68093
+    },
+    "examples": [
+      {
+        "true_label": "FAKE",
+        "predicted_label": "REAL",
+        "text_excerpt": "President Putin Asks US To Stop Provoking Russia. Here is President Putin\u2019s speech at Valdai Putin speech, Valdai 2016 \u2013 JRL, October 29, 2016. President of Russia Vladimir Putin: Tarja, Heinz, Thabo, colleagues, ladies and gentlemen, It is a great pleasure to see you again. I want to start by thank",
+        "text_length": 68093
+      },
+      {
+        "true_label": "FAKE",
+        "predicted_label": "REAL",
+        "text_excerpt": "JUST IN: Senior GOP Rep Announces His Retirement\u2026A BIG LOSS. Rep. Jeb Hensarling (R., Texas) announced Tuesday he will not seek another term in Congress in 2018, telling supporters he has already stayed far longer than I had originally planned. Hensarling, the chairman of the House Financial Service",
+        "text_length": 3153
+      },
+      {
+        "true_label": "FAKE",
+        "predicted_label": "REAL",
+        "text_excerpt": "Tony Blair suggests a second referendum to reverse Brexit. Tony Blair suggests a second referendum to reverse Brexit Tony Blair suggests a second referendum to reverse Brexit By 0 149 Former British Prime Minister Tony Blair says Britain should keep its \u201coptions open\u201d on whether or not to leave the ",
+        "text_length": 1126
+      },
+      {
+        "true_label": "FAKE",
+        "predicted_label": "REAL",
+        "text_excerpt": "Fact Check: Democrats Have Created Twice As Many Jobs As Republicans Since 1950\u2019s. Comments Democrats are better for the economy. This statement is not an opinion, but a fact. According to economist Steven Stoft, who created a series of graphs charting job creation under each party over the last 72 ",
+        "text_length": 1799
+      },
+      {
+        "true_label": "FAKE",
+        "predicted_label": "REAL",
+        "text_excerpt": "Dems Furious After Rosenstein Briefing. Democrats are reportedly furious at deputy attorney general Rod Rosenstein after a classified, closed-door meeting on Friday. The meeting was held to update members of the House of Representatives on the probe into the Trump campaign s ties with Russia, and to",
+        "text_length": 2847
+      },
+      {
+        "true_label": "FAKE",
+        "predicted_label": "REAL",
+        "text_excerpt": "China Fires Back As Trump Drama ESCALATES Before He Even Takes Office. President-elect Donald Trump has yet to take office, yet he s still causing international issues for America. Just last week, on December second, Trump had a 10-minute conversation with Tsai Ing-wen, the president of Taiwan. This",
+        "text_length": 1998
+      },
+      {
+        "true_label": "FAKE",
+        "predicted_label": "REAL",
+        "text_excerpt": "WARNING: FEDS PREDICT $30 TRILLION DOLLAR DEBT Because Of These Two Key Things. You can blame the escalating debt on Obamacare and taxes We can thank Obama for this The federal government will be flirting with $30 trillion in debt within a decade, the Congressional Budget Office reported Monday, bla",
+        "text_length": 2841
+      },
+      {
+        "true_label": "FAKE",
+        "predicted_label": "REAL",
+        "text_excerpt": "ObamaCare: Things Fall Apart. Headlined to H3 10/26/16 The Patient Protection and Affordable Care Act, aka \"ObamaCare,\" was intended to dramatically increase the number of Americans with health coverage while \"bending the cost curve\" (that is, reducing the expected increases in price over time). The",
+        "text_length": 2812
+      },
+      {
+        "true_label": "FAKE",
+        "predicted_label": "REAL",
+        "text_excerpt": "The Political and Cultural Richness of Kashmiriyat. Email The various communities in the state of J & K \u2013 Kashmiri Muslims, Kashmiri Pandits, Dogras and Ladakhis \u2013 have tried time and again to form a national consciousness in order to name a cultural alterity through the nation. The construction of ",
+        "text_length": 9993
+      },
+      {
+        "true_label": "FAKE",
+        "predicted_label": "REAL",
+        "text_excerpt": "Voting Against Peace in Colombia. Email Those of us who study how to end wars rather than find new ways to prosecute them must be stunned, like many Colombians, by a popular vote there on October 2 that rejected the peace agreement between the government and the Revolutionary Armed Forces of Colombi",
+        "text_length": 4822
+      },
+      {
+        "true_label": "FAKE",
+        "predicted_label": "REAL",
+        "text_excerpt": "REPORT: Trump Is Costing America BILLIONS In Tourism Revenues Because People Are Afraid To Travel Here. Donald Trump won t tell you this on his Twitter feed.The last time the tourism industry in this country saw such a drop was in the decade after 9/11.And now, Trump is the reason why people don t w",
+        "text_length": 3139
+      },
+      {
+        "true_label": "FAKE",
+        "predicted_label": "REAL",
+        "text_excerpt": "37-YR OLD FED PROSECUTOR Working On Illegal Immigration, Visa, Passport Fraud Found Dead With Head Wound In Debbie Wasserman-Schultz District [VIDEO]. Hollywood police spokeswoman Miranda Grossman said Thursday that the body of 37-year-old Beranton J. Whisenant Jr. was found early Wednesday by a pas",
+        "text_length": 2630
+      },
+      {
+        "true_label": "FAKE",
+        "predicted_label": "REAL",
+        "text_excerpt": "House GOP Holds Zika Bill Hostage, Proposes Plan To Slash Birth Control Funding. Pregnant women throughout the America s are threatened by the Zika virus, but House Republicans couldn t care less and are still holding the bill that would fight the epidemic hostage. The GOP released their latest fund",
+        "text_length": 4056
+      },
+      {
+        "true_label": "FAKE",
+        "predicted_label": "REAL",
+        "text_excerpt": "OBAMA AND DOJ\u2019S RADICAL DIRECTOR To Meet Monday On Gun Control Executive Action. When Loretta Lynch was confirmed as the new Director of the DOJ, it was clear that our Senate had once again caved to the radical agenda of the Obama administration. Lynch is nothing more than Eric Holder in a dress. So",
+        "text_length": 2127
+      },
+      {
+        "true_label": "FAKE",
+        "predicted_label": "REAL",
+        "text_excerpt": "IT Firm Wins $63Mln US Army Contract in South Korea - NCI. Get short URL 0 4 0 0 NCI Information Systems has been awarded a $63 million contract to provide engineering and integration services to the US Army\u2019s Garrison Humphreys in South Korea, the company stated in a press release Wednesday. WASHIN",
+        "text_length": 1125
+      }
+    ]
+  },
+  "interpretation": "false_positives (legitimate REAL articles predicted FAKE) are the most user-visible failure mode for a tool meant to check real news - review the examples above for common patterns (e.g. short length, quote-heavy text, unusual formatting) before relying on this model for production decisions."
+}

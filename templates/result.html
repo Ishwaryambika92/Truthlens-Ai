@@ -1,0 +1,712 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}TruthLens AI Verification Result{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/result.css' %}?v=20261004.1">
+{% endblock %}
+
+{% block content %}
+
+<!-- Context for floating assistant -->
+<div id="truthlens-assistant-context"
+     data-analysis-id="{{ analysis.id }}"
+     data-final-assessment="{{ analysis.final_assessment }}"
+     data-prediction="{{ analysis.prediction }}"
+     style="display:none;"></div>
+
+<div class="result-page-container">
+
+    <!-- 1. TOP HEADER -->
+    <div class="result-header-wrapper">
+        <div class="result-header-left">
+            <div class="result-header-badge">VERIFICATION RESULT</div>
+            <h1 class="result-header-title">TruthLens AI Verification</h1>
+            <div class="result-header-meta">
+                <span>Analyzed {{ analysis.created_at|date:"M. j, Y • g:i A" }}</span>
+                <span class="meta-dot">·</span>
+                <span>Input: {{ article_meta.input_type }}</span>
+                <span class="meta-dot">·</span>
+                <span class="category-chip">📅 {{ article_meta.temporal_label }}</span>
+            </div>
+        </div>
+        <div class="result-header-actions">
+            <a href="{% url 'detector' %}" class="btn-header-secondary">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                Analyze Another
+            </a>
+            <a href="{% url 'download_report' analysis.id %}" class="btn-header-primary">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                Download Report
+            </a>
+            <form method="POST" action="{% url 'toggle_save_article' analysis.id %}" style="display:inline; margin:0;" id="save-article-form">
+                {% csrf_token %}
+                <button type="button" class="btn-header-icon" title="{% if is_saved %}Saved Article{% else %}Save Article{% endif %}" id="btn-save-toggle" data-analysis-id="{{ analysis.id }}" onclick="toggleSaveArticleAjax(event)">
+                    <span id="save-toggle-icon">{% if is_saved %}★{% else %}☆{% endif %}</span>
+                </button>
+            </form>
+            <button type="button" class="btn-header-icon" id="btn-ask-assistant-trigger" title="Ask TruthLens Assistant" onclick="triggerAskAssistant()">
+                💬
+            </button>
+        </div>
+    </div>
+
+    <!-- 2. MAIN RESULT — MOST IMPORTANT (HERO CARD) -->
+    <div class="verdict-hero-card {% if 'REAL' in analysis.final_assessment and 'MIXED' not in analysis.final_assessment %}state-real{% elif 'FAKE' in analysis.final_assessment %}state-fake{% elif 'MIXED' in analysis.final_assessment %}state-mixed{% else %}state-uncertain{% endif %}">
+        <div class="verdict-hero-top">
+            <div class="verdict-hero-icon">
+                {% if 'REAL' in analysis.final_assessment and 'MIXED' not in analysis.final_assessment %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                {% elif 'FAKE' in analysis.final_assessment %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                {% elif 'MIXED' in analysis.final_assessment %}
+                    <span class="symbol-warning">⚠</span>
+                {% else %}
+                    <span class="symbol-question">?</span>
+                {% endif %}
+            </div>
+            <div class="verdict-hero-content">
+                <div class="verdict-eyebrow">FINAL ASSESSMENT</div>
+                <div class="verdict-title">{{ analysis.final_assessment|default:"UNCERTAIN" }}</div>
+                <div class="verdict-confidence-row">
+                    <span class="verdict-confidence-score">{{ analysis.verification_confidence_score|default:analysis.confidence|default:82.0|floatformat:0 }}% Verification Confidence</span>
+                    <span class="confidence-badge">{{ analysis.verification_confidence|default:"HIGH" }}</span>
+                </div>
+                <div class="verdict-subtitle">
+                    {{ primary_explanation|default:"Based on independent factual verification of extracted claims." }}
+                </div>
+            </div>
+        </div>
+
+
+        <!-- 3. CLAIM-LEVEL EVIDENCE SUMMARY METRIC CHIPS -->
+        <div class="evidence-stats-grid">
+            <div class="stat-pill stat-support">
+                <div class="stat-icon">✓</div>
+                <div class="stat-info">
+                    <div class="stat-number">{{ evidence_summary.supporting }} Supporting Claim{{ evidence_summary.supporting|pluralize }}</div>
+                    <div class="stat-label">{{ evidence_summary.supporting_strength }} • {{ evidence_summary.supporting_detail }}</div>
+                </div>
+            </div>
+            <div class="stat-pill stat-contradict">
+                <div class="stat-icon">✕</div>
+                <div class="stat-info">
+                    <div class="stat-number">{{ evidence_summary.contradicting }} Contradicting Claim{{ evidence_summary.contradicting|pluralize }}</div>
+                    <div class="stat-label">{{ evidence_summary.contradicting_strength }} • {{ evidence_summary.contradicting_detail }}</div>
+                </div>
+            </div>
+            <div class="stat-pill stat-insufficient">
+                <div class="stat-icon">?</div>
+                <div class="stat-info">
+                    <div class="stat-number">{{ evidence_summary.insufficient }} Insufficient Claim{{ evidence_summary.insufficient|pluralize }}</div>
+                    <div class="stat-label">{{ evidence_summary.insufficient_detail|default:"Unverified / Limited Evidence" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. TWO-COLUMN LAYOUT -->
+    <div class="result-two-col-layout">
+
+        <!-- LEFT COLUMN: Analyzed Article + Claims -->
+        <div class="col-left">
+
+            <!-- 5. ANALYZED ARTICLE -->
+            <div class="content-card analyzed-article-card">
+                <div class="card-header-row">
+                    <div>
+                        <h2 class="card-title-lg">Analyzed Article</h2>
+                        <div class="card-subtitle-sm">Extracted content evaluated in this verification run</div>
+                    </div>
+                </div>
+
+                <div class="article-headline-text">{{ article_meta.headline }}</div>
+                <div class="article-preview-text">{{ article_preview_short }}</div>
+
+                {% if has_more_text %}
+                    <div class="article-full-text-container" id="article-full-view">
+                        {{ analysis.extracted_text }}
+                    </div>
+                    <button type="button" class="btn-toggle-article" id="btn-toggle-article-view" onclick="toggleArticleFullText(this)">
+                        <span id="btn-toggle-article-text">Read Full Article</span> <span id="btn-toggle-article-icon">↓</span>
+                    </button>
+                {% endif %}
+
+                <div class="article-meta-tags-strip">
+                    <span class="article-meta-badge">{{ article_meta.word_count }} words</span>
+                    <span class="article-meta-badge">{{ article_meta.language }}</span>
+                    <span class="article-meta-badge">{{ article_meta.input_type }}</span>
+                    <span class="article-meta-badge">{{ article_meta.temporal_label }}</span>
+                    {% if analysis.source_domain %}
+                        <span class="article-meta-badge">Source: {{ analysis.source_domain }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- 6. CLAIM-BY-CLAIM VERIFICATION -->
+            <div class="content-card claims-card">
+                <div class="card-header-row">
+                    <div>
+                        <h2 class="card-title-lg">Claim-by-Claim Verification</h2>
+                        <div class="card-subtitle-sm">Factual assertions isolated and verified against independent sources</div>
+                    </div>
+                    <span class="tech-pill-badge">{{ processed_claims|length }} Claim{{ processed_claims|length|pluralize }} Analyzed</span>
+                </div>
+
+                {% if processed_claims %}
+                    {% for c in processed_claims %}
+                        <div class="claim-row-card">
+                            <div class="claim-header-flex">
+                                <span class="claim-id-box">{{ forloop.counter|stringformat:"02d" }}</span>
+                                <div class="claim-statement-text">{{ c.claim }}</div>
+                                <span class="claim-badge-pill {% if c.status == 'SUPPORTED' %}status-supported{% elif c.status == 'CONTRADICTED' %}status-contradicted{% else %}status-insufficient{% endif %}">
+                                    {% if c.status == 'SUPPORTED' %}✓ SUPPORTED{% elif c.status == 'CONTRADICTED' %}✕ CONTRADICTED{% else %}? INSUFFICIENT{% endif %}
+                                </span>
+                            </div>
+
+                            <div class="claim-explanation-text">{{ c.summary }}</div>
+
+                            {% if c.sources %}
+                                <button type="button" class="claim-accordion-toggle" onclick="toggleClaimEvidence('claim-ev-{{ forloop.counter }}', this)">
+                                    <span>View Evidence & Source Evaluation ({{ c.sources_count }})</span> <span class="claim-toggle-chevron">▾</span>
+                                </button>
+                                <div class="claim-sources-panel" id="claim-ev-{{ forloop.counter }}">
+                                    {% for s in c.sources %}
+                                        <div class="claim-source-quote" style="margin-bottom: 12px; padding: 12px 14px; background: var(--neutral-bg, rgba(255,255,255,0.03)); border: 1px solid var(--card-border, rgba(255,255,255,0.08)); border-radius: 8px;">
+                                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; margin-bottom: 6px;">
+                                                <div style="display: flex; align-items: center; gap: 8px;">
+                                                    <span style="font-weight: 700; color: var(--text-primary); font-size: 0.90rem;">{{ s.publisher|default:s.domain }}</span>
+                                                    {% if s.published_date %}
+                                                        <span style="font-size: 0.76rem; color: var(--text-muted);">{{ s.published_date }}</span>
+                                                    {% endif %}
+                                                </div>
+                                                <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                                                    <span class="claim-badge-pill {{ s.verdict_class }}" style="font-size: 0.72rem; padding: 2px 8px;">
+                                                        {% if s.verdict == 'SUPPORTED' %}✓ SUPPORTS{% elif s.verdict == 'CONTRADICTED' %}✕ CONTRADICTS{% else %}? {{ s.verdict }}{% endif %}
+                                                    </span>
+                                                    <span class="claim-badge-pill {% if s.strength_label == 'STRONG' %}status-supported{% elif s.strength_label == 'MODERATE' %}status-insufficient{% else %}badge-neutral{% endif %}" style="font-size: 0.70rem; padding: 2px 7px;">
+                                                        Strength: {{ s.strength_label|default:"MODERATE" }}
+                                                    </span>
+                                                    <span class="article-meta-badge" style="font-size: 0.70rem; margin: 0;">
+                                                        {{ s.source_reliability_label|default:s.source_reliability|default:"Web Source" }}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div style="font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.45;">
+                                                <strong>Why Classified:</strong> {{ s.reason }}
+                                            </div>
+
+                                            {% if s.excerpt %}
+                                                <div style="font-size: 0.82rem; color: var(--text-muted); font-style: italic; background: rgba(0,0,0,0.02); padding: 6px 10px; border-left: 3px solid var(--border-color, #cbd5e1); border-radius: 2px; margin-bottom: 6px;">
+                                                    "{{ s.excerpt }}"
+                                                </div>
+                                            {% endif %}
+
+                                            {% if s.url %}
+                                                <div style="margin-top: 4px;">
+                                                    <a href="{{ s.url }}" target="_blank" rel="noopener" style="color: var(--lens, #0284c7); text-decoration: underline; font-size: 0.82rem; font-weight: 500;">
+                                                        View Source Article ↗
+                                                    </a>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="color: var(--text-muted); font-size: 0.92rem; margin: 0;">No individual factual claims were extracted for isolated analysis.</p>
+                {% endif %}
+            </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: Why This Result + Takeaways + Sources -->
+        <div class="col-right">
+
+            <!-- 4. WHY WE REACHED THIS RESULT -->
+            <div class="content-card why-result-card">
+                <div class="card-header-row">
+                    <div>
+                        <h2 class="card-title-lg">Why We Reached This Result</h2>
+                        <div class="card-subtitle-sm">Multi-signal evidence synthesis</div>
+                    </div>
+                </div>
+
+                <div class="why-reasons-list">
+                    {% for item in why_points %}
+                        <div class="why-reason-item">
+                            <div class="why-icon-box icon-{{ item.icon_type }}">
+                                {{ item.icon }}
+                            </div>
+                            <div class="why-content-box">
+                                <div class="why-title-text">{{ item.title }}</div>
+                                <div class="why-desc-text">{{ item.desc }}</div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="why-reason-item">
+                            <div class="why-icon-box icon-info">✓</div>
+                            <div class="why-content-box">
+                                <div class="why-title-text">Verification Synthesis</div>
+                                <div class="why-desc-text">{{ primary_explanation }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- 10. KEY TAKEAWAYS -->
+            <div class="content-card takeaways-card">
+                <div class="card-header-row">
+                    <div>
+                        <h2 class="card-title-lg">Key Takeaways</h2>
+                        <div class="card-subtitle-sm">Core facts to remember before sharing</div>
+                    </div>
+                </div>
+
+                <div class="takeaways-list">
+                    {% for t in key_takeaways %}
+                        <div class="takeaway-item">
+                            <span class="takeaway-icon icon-{{ t.type }}">{{ t.icon }}</span>
+                            <span>{{ t.text }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- 7. EVIDENCE SOURCES -->
+            <div class="content-card sources-card">
+                <div class="card-header-row">
+                    <div>
+                        <h2 class="card-title-lg">Evidence Sources</h2>
+                        <div class="card-subtitle-sm">Evidence Found: {{ source_counts.total }} Evidence Source{{ source_counts.total|pluralize }} Evaluated{% if source_counts.total > 0 %} ({{ source_counts.supporting }} Supporting, {{ source_counts.contradicting }} Contradicting, {{ source_counts.neutral }} Neutral{% if source_counts.unrelated %}, {{ source_counts.unrelated }} Unrelated{% endif %}){% endif %}</div>
+                    </div>
+                </div>
+
+                {% if all_sources %}
+                    <div class="source-cards-list">
+                        {% for s in all_sources %}
+                            <div class="source-card-compact">
+                                <div class="source-card-header">
+                                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                                        <span class="source-domain-name">{{ s.publisher|default:s.domain|truncatechars:32 }}</span>
+                                        <span style="font-size: 0.74rem; color: var(--text-muted);">{{ s.source_reliability_label|default:"Web Source" }}</span>
+                                    </div>
+                                    <div style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
+                                        <span class="source-verdict-badge {% if s.verdict == 'SUPPORTED' %}claim-badge-pill status-supported{% elif s.verdict == 'CONTRADICTED' %}claim-badge-pill status-contradicted{% else %}claim-badge-pill status-insufficient{% endif %}">
+                                            {% if s.verdict == 'SUPPORTED' %}✓ Supports{% elif s.verdict == 'CONTRADICTED' %}✕ Contradicts{% else %}? {{ s.verdict }}{% endif %}
+                                        </span>
+                                        <span class="claim-badge-pill {% if s.strength_label == 'STRONG' %}status-supported{% elif s.strength_label == 'MODERATE' %}status-insufficient{% else %}badge-neutral{% endif %}" style="font-size: 0.68rem; padding: 2px 6px;">
+                                            {{ s.strength_label|default:"MODERATE" }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="source-excerpt-text" style="margin-bottom: 4px;"><strong>Why Classified:</strong> {{ s.reason|default:s.excerpt }}</div>
+                                {% if s.claim_addressed %}
+                                    <div style="font-size: 0.76rem; color: var(--text-muted); margin-bottom: 6px;">
+                                        <em>Claim:</em> "{{ s.claim_addressed|truncatechars:70 }}"
+                                    </div>
+                                {% endif %}
+                                {% if s.url %}
+                                    <a href="{{ s.url }}" target="_blank" rel="noopener" class="source-link-action">
+                                        Open Source ↗
+                                    </a>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">No external URLs or fact-check database records were matched for this text.</p>
+                {% endif %}
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- 8 & 9. HISTORICAL ML SIGNAL (TECHNICAL INFORMATION) — BELOW EVIDENCE AND CLAIMS -->
+    <div class="ml-technical-card">
+        <div class="ml-card-header">
+            <div>
+                <h2 class="card-title-lg">Historical ML Signal</h2>
+                <div class="card-subtitle-sm">ML Model Prediction (Historical Style Classifier — does not override real-world evidence)</div>
+            </div>
+            <span class="tech-pill-badge">Technical Information</span>
+        </div>
+
+        <div class="ml-signal-status-row">
+            <span class="ml-status-pill {{ ml_signal.badge_class }}">
+                {% if ml_signal.status == 'REAL' %}✓ LEANS REAL{% elif ml_signal.status == 'FAKE' %}⚠️ LEANS FAKE{% else %}? UNCERTAIN{% endif %}
+            </span>
+            <span class="ml-strength-score">{{ ml_signal.score_display }} signal strength</span>
+            <span style="font-size: 0.88rem; font-weight: 600; color: var(--text-muted);">Historical Signal Strength</span>
+        </div>
+
+        <div class="ml-signal-bar-track">
+            <div class="ml-signal-bar-fill" style="width: {{ ml_signal.score }}%;"></div>
+        </div>
+
+        <p class="ml-disclaimer-explanation">
+            This is a historical writing-style signal. It does not determine whether the real-world event happened.
+        </p>
+
+        <details class="ml-diff-details" id="ml-diff-accordion">
+            <summary id="ml-diff-summary"><span>Why is this different from the Final Assessment?</span> <span id="ml-diff-indicator" style="color: var(--lens, #0284c7); font-weight: 700;">▼</span></summary>
+            <div class="ml-diff-content">
+                The ML model evaluates writing patterns learned from historical training data. The Final Assessment evaluates real-world evidence retrieved for the claims. When current evidence is available, factual evidence has priority over historical writing-style patterns.
+            </div>
+        </details>
+
+        {% if analysis.top_terms %}
+            <div style="margin-top: 16px;">
+                <div style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px;">Contributing Language Terms Present in Article:</div>
+                <div class="ml-top-terms-row">
+                    {% for term, weight in analysis.top_terms %}
+                        <span class="ml-term-chip">{{ term }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- 11. VERIFICATION TIMELINE -->
+    <div class="timeline-card">
+        <div class="card-header-row">
+            <div>
+                <h2 class="card-title-lg">Verification Timeline</h2>
+                <div class="card-subtitle-sm">Transparent pipeline execution audit</div>
+            </div>
+        </div>
+
+        <div class="timeline-steps-track">
+            <div class="timeline-step">
+                <div class="timeline-step-icon">1</div>
+                <div class="timeline-step-title">Input Received</div>
+                <div class="timeline-step-sub">{{ article_meta.input_type }}</div>
+            </div>
+            <div class="timeline-step">
+                <div class="timeline-step-icon">2</div>
+                <div class="timeline-step-title">Claims Extracted</div>
+                <div class="timeline-step-sub">{{ claim_counts.total }} claim{{ claim_counts.total|pluralize }}</div>
+            </div>
+            <div class="timeline-step">
+                <div class="timeline-step-icon">3</div>
+                <div class="timeline-step-title">Evidence Retrieved</div>
+                <div class="timeline-step-sub">{{ source_counts.total }} unique source{{ source_counts.total|pluralize }}</div>
+            </div>
+            <div class="timeline-step">
+                <div class="timeline-step-icon">4</div>
+                <div class="timeline-step-title">Claims Verified</div>
+                <div class="timeline-step-sub">
+                    <span style="color: #059669; font-weight: 600;">{{ claim_counts.supported }} Supported</span><br>
+                    <span style="color: #dc2626; font-weight: 600;">{{ claim_counts.contradicted }} Contradicted</span><br>
+                    <span style="color: #d97706; font-weight: 600;">{{ claim_counts.insufficient }} Insufficient</span>
+                </div>
+            </div>
+            <div class="timeline-step">
+                <div class="timeline-step-icon">5</div>
+                <div class="timeline-step-title">Final Assessment</div>
+                <div class="timeline-step-sub" style="font-weight: 700;">{{ analysis.final_assessment|default:"UNCERTAIN" }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 12. TECHNICAL DETAILS (EXPANDABLE) -->
+    <details class="technical-details-card" id="tech-details-accordion">
+        <summary id="tech-details-summary">
+            <span>Technical Details</span>
+            <span class="tech-expand-indicator" id="tech-details-indicator">Click to Expand ▼</span>
+        </summary>
+        <div class="tech-details-grid">
+            <div class="tech-spec-item">
+                <span class="tech-spec-label">ML Estimator</span>
+                <span class="tech-spec-val">LinearSVC + CalibratedClassifierCV (cv=3)</span>
+            </div>
+            <div class="tech-spec-item">
+                <span class="tech-spec-label">Feature Extraction</span>
+                <span class="tech-spec-val">TF-IDF (30,000 max features, n-grams 1-2)</span>
+            </div>
+            <div class="tech-spec-item">
+                <span class="tech-spec-label">Raw Model Prediction</span>
+                <span class="tech-spec-val">{{ ml_signal.raw_label }}</span>
+            </div>
+            <div class="tech-spec-item">
+                <span class="tech-spec-label">Model Probability</span>
+                <span class="tech-spec-val">{{ ml_signal.score_display }}</span>
+            </div>
+            <div class="tech-spec-item">
+                <span class="tech-spec-label">Temporal Context</span>
+                <span class="tech-spec-val">{{ analysis.temporal_context|upper }} ({{ analysis.temporal_detected_year|default:"Recent" }})</span>
+            </div>
+            <div class="tech-spec-item">
+                <span class="tech-spec-label">Clickbait Score</span>
+                <span class="tech-spec-val">{{ analysis.clickbait_score|default:"0" }}/100 ({{ analysis.clickbait_classification|default:"LOW" }})</span>
+            </div>
+            <div class="tech-spec-item">
+                <span class="tech-spec-label">Analysis Reference ID</span>
+                <span class="tech-spec-val">#{{ analysis.id }}</span>
+            </div>
+            <div class="tech-spec-item">
+                <span class="tech-spec-label">Execution Timestamp</span>
+                <span class="tech-spec-val">{{ analysis.created_at|date:"Y-m-d H:i:s T" }}</span>
+            </div>
+        </div>
+    </details>
+
+    <!-- 13. FEEDBACK CARD -->
+    <div class="feedback-actions-card">
+        <div class="card-header-row">
+            <div>
+                <h2 class="card-title-lg">Was this verification helpful?</h2>
+                <div class="card-subtitle-sm">Your feedback helps improve TruthLens AI calibration and accuracy</div>
+            </div>
+        </div>
+
+        <form method="POST" action="{% url 'submit_feedback' analysis.id %}" id="feedback-form" onsubmit="handleFeedbackSubmit(event)">
+            {% csrf_token %}
+            <input type="hidden" name="helpful" id="feedback-helpful-input" value="{% if user_feedback %}{% if user_feedback.helpful %}yes{% else %}no{% endif %}{% else %}yes{% endif %}">
+
+            <div class="feedback-flex-row">
+                <button type="button" class="btn-vote-choice {% if user_feedback.helpful == True or not user_feedback %}active{% endif %}" id="vote-yes" data-val="yes" onclick="setFeedbackVote('yes')">
+                    👍 Yes, helpful
+                </button>
+                <button type="button" class="btn-vote-choice {% if user_feedback and not user_feedback.helpful %}active{% endif %}" id="vote-no" data-val="no" onclick="setFeedbackVote('no')">
+                    👎 No, needs improvement
+                </button>
+            </div>
+
+            <textarea name="comment" id="feedback-comment" class="feedback-textarea-styled" rows="2" placeholder="Optional comments on evidence quality or claim extraction...">{{ user_feedback.comment|default:"" }}</textarea>
+
+            <div style="display: flex; align-items: center; gap: 14px; margin-top: 14px; flex-wrap: wrap;">
+                <button type="submit" class="btn-header-primary" id="btn-submit-feedback">
+                    Submit Feedback
+                </button>
+                <span id="feedback-status-msg" style="display: none; font-size: 0.88rem; color: #10b981; font-weight: 600;">
+                    ✓ Thanks for your feedback!
+                </span>
+            </div>
+        </form>
+    </div>
+
+    <!-- 14. FINAL DISCLAIMER -->
+    <div class="final-report-disclaimer">
+        TruthLens AI combines machine-learning signals with available external evidence. Results are informational and should not be treated as absolute proof.
+    </div>
+
+</div>
+
+<!-- Interaction Scripts -->
+<script>
+// CSRF Token Helper
+function getCookie(name) {
+    var value = "; " + document.cookie;
+    var parts = value.split("; " + name + "=");
+    if (parts.length === 2) return parts.pop().split(";").shift();
+    return "";
+}
+
+// 1. Article Full Text Expander
+function toggleArticleFullText(btn) {
+    var fullText = document.getElementById("article-full-view");
+    var label = document.getElementById("btn-toggle-article-text");
+    var icon = document.getElementById("btn-toggle-article-icon");
+    if (!fullText) return;
+    var isHidden = (window.getComputedStyle(fullText).display === "none");
+    if (isHidden) {
+        fullText.style.display = "block";
+        if (label) label.textContent = "Collapse Full Article";
+        if (icon) icon.textContent = "↑";
+    } else {
+        fullText.style.display = "none";
+        if (label) label.textContent = "Read Full Article";
+        if (icon) icon.textContent = "↓";
+    }
+}
+
+// 2. Feedback Voting Buttons
+function setFeedbackVote(val) {
+    var helpfulInput = document.getElementById("feedback-helpful-input");
+    var voteYes = document.getElementById("vote-yes");
+    var voteNo = document.getElementById("vote-no");
+    if (helpfulInput) helpfulInput.value = val;
+    if (voteYes && voteNo) {
+        if (val === "yes") {
+            voteYes.classList.add("active");
+            voteNo.classList.remove("active");
+        } else {
+            voteNo.classList.add("active");
+            voteYes.classList.remove("active");
+        }
+    }
+}
+
+// 3. Feedback Form Submission (Instant AJAX with graceful fallback)
+async function handleFeedbackSubmit(event) {
+    if (event) event.preventDefault();
+    var form = document.getElementById("feedback-form");
+    var submitBtn = document.getElementById("btn-submit-feedback");
+    var statusMsg = document.getElementById("feedback-status-msg");
+    if (!form) return;
+
+    var originalText = submitBtn ? submitBtn.textContent : "Submit Feedback";
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Saving...";
+    }
+
+    try {
+        var formData = new FormData(form);
+        var resp = await fetch(form.action, {
+            method: "POST",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest"
+            },
+            body: formData
+        });
+
+        if (resp.ok) {
+            var data = await resp.json();
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Feedback Saved ✓";
+            }
+            if (statusMsg) {
+                statusMsg.textContent = "✓ " + (data.message || "Thanks for your feedback!");
+                statusMsg.style.display = "inline";
+            }
+            if (window.showToast) {
+                window.showToast(data.message || "Thanks for your feedback!");
+            }
+            setTimeout(function() {
+                if (submitBtn) submitBtn.textContent = originalText;
+            }, 3000);
+        } else {
+            form.submit();
+        }
+    } catch (e) {
+        form.submit();
+    }
+}
+
+// 4. Save Article Button (Instant AJAX Toggle)
+async function toggleSaveArticleAjax(event, analysisId) {
+    if (event) event.preventDefault();
+    var icon = document.getElementById("save-toggle-icon");
+    var btn = document.getElementById("btn-save-toggle");
+    if (!analysisId && btn) {
+        analysisId = btn.getAttribute("data-analysis-id");
+    }
+    try {
+        var csrf = document.querySelector('[name=csrfmiddlewaretoken]')?.value || getCookie('csrftoken');
+        var resp = await fetch("/analysis/" + analysisId + "/save/", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": csrf,
+                "X-Requested-With": "XMLHttpRequest"
+            }
+        });
+        if (resp.ok) {
+            var data = await resp.json();
+            if (icon) icon.textContent = data.is_saved ? "★" : "☆";
+            if (btn) btn.title = data.is_saved ? "Saved Article" : "Save Article";
+            if (window.showToast) {
+                window.showToast(data.message || (data.is_saved ? "Article saved." : "Removed from saved articles."));
+            }
+        } else {
+            var form = btn ? btn.closest("form") : null;
+            if (form) form.submit();
+        }
+    } catch (e) {
+        var form = btn ? btn.closest("form") : null;
+        if (form) form.submit();
+    }
+}
+
+// 5. Ask Assistant Trigger
+function triggerAskAssistant() {
+    if (typeof window.openTruthLensAssistant === "function") {
+        window.openTruthLensAssistant({ focus: true });
+    } else {
+        var trigger = document.getElementById("floating-assistant-btn");
+        if (trigger) {
+            trigger.click();
+        } else {
+            var panel = document.getElementById("assistant-chat-panel");
+            if (panel) {
+                panel.classList.add("is-open");
+                var input = document.getElementById("assistant-chat-input");
+                if (input) input.focus();
+            }
+        }
+    }
+}
+
+// 6. Claim Evidence Accordion Toggle
+function toggleClaimEvidence(panelId, btn) {
+    var panel = document.getElementById(panelId);
+    if (!panel) return;
+    var isHidden = (window.getComputedStyle(panel).display === "none");
+    var chevron = btn ? btn.querySelector(".claim-toggle-chevron") : null;
+    if (isHidden) {
+        panel.style.display = "block";
+        if (chevron) {
+            chevron.textContent = "▴";
+        } else if (btn) {
+            btn.innerHTML = btn.innerHTML.replace("▾", "▴");
+        }
+    } else {
+        panel.style.display = "none";
+        if (chevron) {
+            chevron.textContent = "▾";
+        } else if (btn) {
+            btn.innerHTML = btn.innerHTML.replace("▴", "▾");
+        }
+    }
+}
+
+// 7. Initialize accordion indicators & fallback event hooks
+function initResultInteractions() {
+    var techDetails = document.getElementById("tech-details-accordion");
+    var techIndicator = document.getElementById("tech-details-indicator");
+    if (techDetails && techIndicator) {
+        techDetails.addEventListener("toggle", function() {
+            techIndicator.textContent = techDetails.open ? "Click to Collapse ▲" : "Click to Expand ▼";
+        });
+    }
+
+    var mlDiff = document.getElementById("ml-diff-accordion");
+    var mlIndicator = document.getElementById("ml-diff-indicator");
+    if (mlDiff && mlIndicator) {
+        mlDiff.addEventListener("toggle", function() {
+            mlIndicator.textContent = mlDiff.open ? "▲" : "▼";
+        });
+    }
+
+    // Attach click listeners for vote buttons in case inline onclick is restricted
+    var voteYes = document.getElementById("vote-yes");
+    var voteNo = document.getElementById("vote-no");
+    if (voteYes) {
+        voteYes.addEventListener("click", function() { setFeedbackVote("yes"); });
+    }
+    if (voteNo) {
+        voteNo.addEventListener("click", function() { setFeedbackVote("no"); });
+    }
+
+    // Attach click listener for assistant trigger
+    var askBtn = document.getElementById("btn-ask-assistant-trigger");
+    if (askBtn) {
+        askBtn.addEventListener("click", triggerAskAssistant);
+    }
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initResultInteractions);
+} else {
+    initResultInteractions();
+}
+</script>
+
+{% endblock %}

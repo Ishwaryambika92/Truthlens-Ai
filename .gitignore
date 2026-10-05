@@ -1,0 +1,39 @@
+# Environments
+venv/
+.venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+
+# Secrets & Environment variables
+.env
+.env.*
+!.env.example
+
+# Cache & Temporary files
+Cache/
+.cache/
+*.log
+*.tmp
+scratch/chrome_data/
+**/Cache/
+**/.cache/
+**/Cache_Data/
+
+# Django
+db.sqlite3
+staticfiles/
+media/uploads/
+
+# Large ML data files - reproducible via detector/ml/prepare_dataset.py.
+# See detector/ml/raw/DATASET_SOURCE.md for exact download commands.
+# model_pipeline.pkl (the small, deployable trained artifact) is NOT
+# excluded - that one ships with the repo.
+detector/ml/raw/*.csv
+detector/ml/news_dataset.csv
+
+# OS/editor
+.DS_Store
+.idea/
+.vscode/

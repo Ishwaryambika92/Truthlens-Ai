@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Assistant · TruthLens AI{% endblock %}
+{% block content %}
+
+<!-- Header -->
+<div style="margin-bottom: 24px;">
+    <div class="result-tag">AI COMPANION</div>
+    <h1 class="result-title">TruthLens Assistant</h1>
+    <p style="color: #94a3b8; font-size: 0.94rem; margin: 0;">
+        Interactive verification guide to explain reasoning, examine corroborating evidence, and analyze claim credibility.
+    </p>
+</div>
+
+<div class="card" style="text-align: center; padding: 48px 24px; max-width: 680px; margin: 0 auto;">
+    <div style="width: 72px; height: 72px; border-radius: 50%; background: #0e182a; border: 2px solid #22d3ee; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 0 20px rgba(34, 211, 238, 0.3);">
+        <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 6 C28 6, 33 11, 33 19 C33 27, 20 34, 20 34 C20 34, 7 27, 7 19 C7 11, 12 6, 20 6 Z" stroke="#22d3ee" stroke-width="2.2" fill="#0b111e" />
+            <circle cx="15" cy="18" r="2.5" fill="#22d3ee" />
+            <circle cx="25" cy="18" r="2.5" fill="#22d3ee" />
+            <path d="M17 24 Q20 26 23 24" stroke="#22d3ee" stroke-width="2" stroke-linecap="round" fill="none" />
+            <line x1="20" y1="6" x2="20" y2="2" stroke="#22d3ee" stroke-width="2" />
+            <circle cx="20" cy="2" r="1.5" fill="#34d399" />
+        </svg>
+    </div>
+
+    <h2 style="color: #ffffff; margin-bottom: 8px; font-size: 1.5rem;">TruthLens Verification Guide</h2>
+    <p style="color: #94a3b8; font-size: 0.95rem; line-height: 1.6; max-width: 520px; margin: 0 auto 24px;">
+        The TruthLens Assistant floats in the bottom right corner of every page, ready to answer questions about any article or verification result.
+    </p>
+
+    <div style="margin-bottom: 32px;">
+        <button type="button" class="btn-cyan" id="btn-open-full-assistant" style="padding: 12px 28px; font-size: 1rem;">
+            💬 Open Floating Assistant
+        </button>
+    </div>
+
+    <div style="border-top: 1px solid #1e293b; padding-top: 24px;">
+        <div class="card-section-label" style="margin-bottom: 14px;">COMMON VERIFICATION QUESTIONS</div>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+            <button type="button" class="btn-dark-action prompt-chip" data-prompt="What does UNCERTAIN verdict mean?">
+                ❓ What does UNCERTAIN mean?
+            </button>
+            <button type="button" class="btn-dark-action prompt-chip" data-prompt="How does multi-layer evidence verification work?">
+                🔍 How does verification work?
+            </button>
+            <button type="button" class="btn-dark-action prompt-chip" data-prompt="Explain ML prediction vs live evidence">
+                🔬 ML vs Live Evidence
+            </button>
+            <button type="button" class="btn-dark-action prompt-chip" data-prompt="How are confidence scores calculated?">
+                📊 Confidence score calculation
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    function launchAssistant(prompt) {
+        if (typeof window.openTruthLensAssistant === "function") {
+            window.openTruthLensAssistant({ prompt: prompt });
+        } else {
+            var btn = document.getElementById("floating-assistant-btn");
+            if (btn) btn.click();
+        }
+    }
+
+    var openBtn = document.getElementById("btn-open-full-assistant");
+    if (openBtn) {
+        openBtn.addEventListener("click", function() {
+            launchAssistant();
+        });
+    }
+
+    document.querySelectorAll(".prompt-chip").forEach(function(chip) {
+        chip.addEventListener("click", function() {
+            var prompt = this.getAttribute("data-prompt");
+            launchAssistant(prompt);
+        });
+    });
+});
+</script>
+
+{% endblock %}

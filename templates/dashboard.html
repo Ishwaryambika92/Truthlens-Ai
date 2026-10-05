@@ -1,0 +1,405 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Dashboard · TruthLens AI{% endblock %}
+{% block content %}
+
+<!-- PHASE 4: DASHBOARD HERO (Centered, SaaS Style) -->
+<div style="text-align: center; margin-bottom: 28px; max-width: 820px; margin-left: auto; margin-right: auto;">
+    <div style="display: inline-flex; align-items: center; gap: 8px; padding: 4px 14px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 9999px; font-size: 0.8rem; color: #34d399; font-weight: 600; margin-bottom: 12px;">
+        <span style="width: 7px; height: 7px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981;"></span>
+        System Operational
+    </div>
+    <div class="result-tag" style="margin-bottom: 6px; display: inline-block;">TRUTHLENS AI / DASHBOARD</div>
+    <h1 class="result-title" style="margin-bottom: 8px; font-size: 2rem; font-weight: 800; letter-spacing: -0.02em;">Verify News. Understand the Truth.</h1>
+    <p style="color: #94a3b8; font-size: 0.96rem; margin: 0 auto; line-height: 1.6; max-width: 620px;">
+        Monitor verification activity, authenticity trends, and recent analyses in one place.
+    </p>
+</div>
+
+<!-- PHASE 5: KPI CARDS (Real dynamic database data) -->
+<div class="dashboard-kpi-grid">
+    <!-- TOTAL ANALYSES -->
+    <div class="card" style="margin-bottom: 0; padding: 22px 20px;">
+        <div class="card-section-label" style="margin-bottom: 8px;">TOTAL ANALYSES</div>
+        <div style="font-size: 2.2rem; font-weight: 800; color: #ffffff; line-height: 1; font-family: var(--font-display);">{{ total }}</div>
+        <div style="font-size: 0.82rem; color: #94a3b8; margin-top: 8px;">Total articles processed</div>
+    </div>
+
+    <!-- LIKELY REAL -->
+    <div class="card" style="margin-bottom: 0; padding: 22px 20px;">
+        <div class="card-section-label" style="margin-bottom: 8px; color: #34d399;">LIKELY REAL</div>
+        <div style="font-size: 2.2rem; font-weight: 800; color: #34d399; line-height: 1; font-family: var(--font-display);">{{ real_count }}</div>
+        <div style="font-size: 0.82rem; color: #94a3b8; margin-top: 8px;">Corroborated as factual</div>
+    </div>
+
+    <!-- LIKELY FAKE -->
+    <div class="card" style="margin-bottom: 0; padding: 22px 20px;">
+        <div class="card-section-label" style="margin-bottom: 8px; color: #f87171;">LIKELY FAKE</div>
+        <div style="font-size: 2.2rem; font-weight: 800; color: #f87171; line-height: 1; font-family: var(--font-display);">{{ fake_count }}</div>
+        <div style="font-size: 0.82rem; color: #94a3b8; margin-top: 8px;">Refuted or fabricated</div>
+    </div>
+
+    <!-- UNCERTAIN -->
+    <div class="card" style="margin-bottom: 0; padding: 22px 20px;">
+        <div class="card-section-label" style="margin-bottom: 8px; color: #fbbf24;">UNCERTAIN</div>
+        <div style="font-size: 2.2rem; font-weight: 800; color: #fbbf24; line-height: 1; font-family: var(--font-display);">{{ uncertain_count }}</div>
+        <div style="font-size: 0.82rem; color: #94a3b8; margin-top: 8px;">Insufficient evidence</div>
+    </div>
+</div>
+
+<!-- PHASE 9: VERIFICATION INSIGHT (Only displayed when sufficient real data exists >= 3 analyses) -->
+{% if insight %}
+<div class="card" style="padding: 16px 20px; margin-bottom: 24px; background: rgba(34, 211, 238, 0.05); border-color: rgba(34, 211, 238, 0.2); display: flex; align-items: center; gap: 14px;">
+    <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(34, 211, 238, 0.12); border: 1px solid rgba(34, 211, 238, 0.25); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #22d3ee; font-size: 1.1rem;">
+        💡
+    </div>
+    <div style="flex: 1;">
+        <div style="font-size: 0.74rem; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">Verification Insight</div>
+        <div style="font-size: 0.92rem; color: #cbd5e1; line-height: 1.45;">{{ insight }}</div>
+    </div>
+</div>
+{% endif %}
+
+<!-- PHASE 6: VERIFICATION ACTIVITY CHART (7D | 14D | 30D with Real, Fake, Uncertain series) -->
+<div class="card timeline-card" style="margin-bottom: 24px;">
+    <div class="timeline-card-header">
+        <div class="timeline-header-left">
+            <div class="card-section-label" style="margin-bottom: 0;">VERIFICATION ACTIVITY</div>
+            <!-- Range Switcher -->
+            <div class="timeline-range-pills">
+                <button type="button" class="timeline-range-btn" data-range="7">7D</button>
+                <button type="button" class="timeline-range-btn active" data-range="14">14D</button>
+                <button type="button" class="timeline-range-btn" data-range="30">30D</button>
+            </div>
+        </div>
+
+        <!-- 3-Series Legend -->
+        <div class="timeline-legend">
+            <span class="timeline-legend-item">
+                <span class="legend-dot dot-real"></span> Real News
+            </span>
+            <span class="timeline-legend-item">
+                <span class="legend-dot dot-fake"></span> Fake News
+            </span>
+            <span class="timeline-legend-item">
+                <span class="legend-dot dot-warn"></span> Uncertain
+            </span>
+        </div>
+    </div>
+
+    <!-- Empty State for Chart -->
+    {% if total == 0 %}
+        <div style="text-align: center; padding: 48px 20px;">
+            <div style="font-size: 1.15rem; font-weight: 600; color: #ffffff; margin-bottom: 8px;">No verification activity yet.</div>
+            <p style="color: #94a3b8; font-size: 0.92rem; max-width: 440px; margin: 0 auto 20px; line-height: 1.5;">
+                Run your first analysis to start building your verification history.
+            </p>
+            <a href="{% url 'detector' %}" class="btn-cyan" style="display: inline-flex; align-items: center; gap: 8px;">
+                🔍 Analyze News
+            </a>
+        </div>
+    {% else %}
+        <!-- 7-Day Range View -->
+        <div class="timeline-chart-container timeline-range-view" id="chart-range-7" style="display: none;">
+            {% for day in timeline_7 %}
+                <div class="timeline-col" title="{{ day.date }}: {{ day.real }} Real, {{ day.fake }} Fake, {{ day.uncertain }} Uncertain">
+                    <div class="timeline-bar-wrapper">
+                        {% if day.real or day.fake or day.uncertain %}
+                            {% if day.real %}
+                                <div class="timeline-bar-real" style="height: {{ day.real|default:1 }}4px; max-height: 50px;"></div>
+                            {% endif %}
+                            {% if day.fake %}
+                                <div class="timeline-bar-fake" style="height: {{ day.fake|default:1 }}4px; max-height: 50px;"></div>
+                            {% endif %}
+                            {% if day.uncertain %}
+                                <div class="timeline-bar-uncertain" style="height: {{ day.uncertain|default:1 }}4px; max-height: 50px;"></div>
+                            {% endif %}
+                        {% else %}
+                            <div style="width: 100%; height: 3px; background: rgba(255, 255, 255, 0.08);"></div>
+                        {% endif %}
+                    </div>
+                    <div class="timeline-date-label">{{ day.date }}</div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- 14-Day Range View (Default) -->
+        <div class="timeline-chart-container timeline-range-view" id="chart-range-14">
+            {% for day in timeline_14 %}
+                <div class="timeline-col" title="{{ day.date }}: {{ day.real }} Real, {{ day.fake }} Fake, {{ day.uncertain }} Uncertain">
+                    <div class="timeline-bar-wrapper">
+                        {% if day.real or day.fake or day.uncertain %}
+                            {% if day.real %}
+                                <div class="timeline-bar-real" style="height: {{ day.real|default:1 }}4px; max-height: 50px;"></div>
+                            {% endif %}
+                            {% if day.fake %}
+                                <div class="timeline-bar-fake" style="height: {{ day.fake|default:1 }}4px; max-height: 50px;"></div>
+                            {% endif %}
+                            {% if day.uncertain %}
+                                <div class="timeline-bar-uncertain" style="height: {{ day.uncertain|default:1 }}4px; max-height: 50px;"></div>
+                            {% endif %}
+                        {% else %}
+                            <div style="width: 100%; height: 3px; background: rgba(255, 255, 255, 0.08);"></div>
+                        {% endif %}
+                    </div>
+                    <div class="timeline-date-label">{{ day.date }}</div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- 30-Day Range View -->
+        <div class="timeline-chart-container timeline-range-view" id="chart-range-30" style="display: none; overflow-x: auto;">
+            {% for day in timeline_30 %}
+                <div class="timeline-col" style="min-width: 28px;" title="{{ day.date }}: {{ day.real }} Real, {{ day.fake }} Fake, {{ day.uncertain }} Uncertain">
+                    <div class="timeline-bar-wrapper">
+                        {% if day.real or day.fake or day.uncertain %}
+                            {% if day.real %}
+                                <div class="timeline-bar-real" style="height: {{ day.real|default:1 }}4px; max-height: 50px;"></div>
+                            {% endif %}
+                            {% if day.fake %}
+                                <div class="timeline-bar-fake" style="height: {{ day.fake|default:1 }}4px; max-height: 50px;"></div>
+                            {% endif %}
+                            {% if day.uncertain %}
+                                <div class="timeline-bar-uncertain" style="height: {{ day.uncertain|default:1 }}4px; max-height: 50px;"></div>
+                            {% endif %}
+                        {% else %}
+                            <div style="width: 100%; height: 3px; background: rgba(255, 255, 255, 0.08);"></div>
+                        {% endif %}
+                    </div>
+                    <div class="timeline-date-label" style="font-size: 0.65rem;">{{ day.date }}</div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+
+<!-- PHASE 7: RECENT ANALYSES (Desktop Table & Mobile Clean Cards) -->
+<div class="card recent-analyses-card" style="padding-bottom: 8px; margin-bottom: 24px;">
+    <div class="recent-analyses-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+        <div>
+            <div class="card-section-label" style="margin-bottom: 2px;">RECENT ANALYSES</div>
+            <div style="color: #94a3b8; font-size: 0.84rem;">Latest verification activity</div>
+        </div>
+        {% if recent %}
+            <a href="{% url 'history' %}" style="color: #22d3ee; font-size: 0.85rem; font-weight: 600; text-decoration: none;">
+                View All History →
+            </a>
+        {% endif %}
+    </div>
+
+    {% if recent %}
+        <!-- Desktop Table View (Hidden on mobile) -->
+        <div class="tl-table-wrap desktop-only-table">
+            <table class="tl-table">
+                <thead>
+                    <tr>
+                        <th style="width: 48%;">ARTICLE</th>
+                        <th style="width: 18%; text-align: center;">ASSESSMENT</th>
+                        <th style="width: 14%; text-align: center;">CONFIDENCE</th>
+                        <th style="width: 12%; text-align: right;">DATE</th>
+                        <th style="width: 8%; text-align: right;">ACTION</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in recent %}
+                        <tr class="clickable-row" data-href="{% url 'analysis_result' a.id %}">
+                            <!-- ARTICLE -->
+                            <td>
+                                <div style="font-weight: 500; color: #e2e8f0; line-height: 1.4; font-size: 0.92rem;">
+                                    {{ a.title|default:a.extracted_text|truncatechars:78 }}
+                                </div>
+                            </td>
+
+                            <!-- ASSESSMENT (✓ REAL / ✕ FAKE / ? UNCERTAIN) -->
+                            <td style="text-align: center;">
+                                <div style="display: inline-flex; flex-direction: column; align-items: center;">
+                                    {% if a.final_assessment == "LIKELY REAL" or not a.final_assessment and a.prediction == "REAL" %}
+                                        <div class="pill-verdict real" style="padding: 4px 12px; font-size: 0.8rem; font-weight: 600;">
+                                            ✓ REAL
+                                        </div>
+                                        {% if a.final_assessment == 'LIKELY REAL' and a.prediction == 'FAKE' %}
+                                            <div class="override-subtext">Evidence Overrode ML</div>
+                                        {% endif %}
+                                    {% elif a.final_assessment == "LIKELY FAKE" or not a.final_assessment and a.prediction == "FAKE" %}
+                                        <div class="pill-verdict fake" style="padding: 4px 12px; font-size: 0.8rem; font-weight: 600;">
+                                            ✕ FAKE
+                                        </div>
+                                    {% elif a.final_assessment == "MIXED / MISLEADING" or "MIXED" in a.final_assessment %}
+                                        <div class="pill-verdict warn" style="padding: 4px 12px; font-size: 0.8rem; font-weight: 600; background: rgba(249, 115, 22, 0.12); color: #ea580c; border: 1px solid rgba(249, 115, 22, 0.3);">
+                                            ⚠ MIXED
+                                        </div>
+                                    {% else %}
+                                        <div class="pill-verdict warn" style="padding: 4px 12px; font-size: 0.8rem; font-weight: 600;">
+                                            ? UNCERTAIN
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                            <!-- CONFIDENCE -->
+                            <td style="text-align: center;">
+                                <div style="font-family: var(--font-mono); color: #cbd5e1; font-size: 0.88rem; font-weight: 500;">
+                                    {% if a.verification_confidence_score %}
+                                        {{ a.verification_confidence_score|floatformat:1 }}%
+                                    {% elif a.confidence %}
+                                        {{ a.confidence|floatformat:1 }}%
+                                    {% else %}
+                                        --
+                                    {% endif %}
+                                </div>
+                                {% if a.verification_confidence_score or a.confidence %}
+                                    <div style="width: 48px; height: 3px; background: rgba(255, 255, 255, 0.1); border-radius: 9999px; margin: 4px auto 0; overflow: hidden;">
+                                        <div style="height: 100%; width: {% if a.verification_confidence_score %}{{ a.verification_confidence_score|floatformat:0 }}{% else %}{{ a.confidence|floatformat:0 }}{% endif %}%; background: #22d3ee; border-radius: 9999px;"></div>
+                                    </div>
+                                {% endif %}
+                            </td>
+
+                            <!-- DATE -->
+                            <td style="text-align: right; color: #94a3b8; font-size: 0.82rem; white-space: nowrap;">
+                                {{ a.created_at|date:"M d, H:i" }}
+                            </td>
+
+                            <!-- ACTION: View → -->
+                            <td style="text-align: right;">
+                                <a href="{% url 'analysis_result' a.id %}" style="color: #22d3ee; font-size: 0.85rem; font-weight: 600; text-decoration: none; white-space: nowrap;">
+                                    View →
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile Card List View (Clean, responsive, perfectly fitting 320px–768px viewports) -->
+        <div class="mobile-recent-list">
+            {% for a in recent %}
+                <div class="mobile-recent-card clickable-row" data-href="{% url 'analysis_result' a.id %}">
+                    <div class="mobile-recent-card-top">
+                        <div class="mobile-recent-title">
+                            {{ a.title|default:a.extracted_text|truncatechars:75 }}
+                        </div>
+                        <div class="mobile-recent-badge">
+                            {% if a.final_assessment == "LIKELY REAL" or not a.final_assessment and a.prediction == "REAL" %}
+                                <div class="pill-verdict real" style="padding: 3px 10px; font-size: 0.74rem;">✓ REAL</div>
+                                {% if a.final_assessment == 'LIKELY REAL' and a.prediction == 'FAKE' %}
+                                    <div class="override-subtext" style="font-size: 0.65rem;">Evidence Overrode ML</div>
+                                {% endif %}
+                            {% elif a.final_assessment == "LIKELY FAKE" or not a.final_assessment and a.prediction == "FAKE" %}
+                                <div class="pill-verdict fake" style="padding: 3px 10px; font-size: 0.74rem;">✕ FAKE</div>
+                            {% elif a.final_assessment == "MIXED / MISLEADING" or "MIXED" in a.final_assessment %}
+                                <div class="pill-verdict warn" style="padding: 3px 10px; font-size: 0.74rem; background: rgba(249, 115, 22, 0.12); color: #ea580c; border: 1px solid rgba(249, 115, 22, 0.3);">⚠ MIXED</div>
+                            {% else %}
+                                <div class="pill-verdict warn" style="padding: 3px 10px; font-size: 0.74rem;">? UNCERTAIN</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mobile-recent-card-meta">
+                        <div class="mobile-recent-confidence">
+                            <span class="mobile-meta-label">Confidence:</span>
+                            <span class="mobile-meta-val">
+                                {% if a.verification_confidence_score %}
+                                    {{ a.verification_confidence_score|floatformat:1 }}%
+                                {% elif a.confidence %}
+                                    {{ a.confidence|floatformat:1 }}%
+                                {% else %}
+                                    --
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="mobile-recent-date">
+                            {{ a.created_at|date:"M d, H:i" }}
+                        </div>
+                        <div class="mobile-recent-action">
+                            View →
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Empty State for Recent Analyses -->
+        <div style="text-align: center; padding: 48px 16px; color: #94a3b8;">
+            <p style="margin: 0 0 16px 0; font-size: 0.95rem;">No analyses yet.</p>
+            <a href="{% url 'detector' %}" class="btn-cyan" style="display: inline-flex; align-items: center; gap: 8px;">
+                🔍 Analyze News
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<!-- PHASE 8: QUICK ACTIONS (Emphasized Analyze News, History, Saved Articles, AI Assistant) -->
+<div style="margin-top: 8px; margin-bottom: 8px;">
+    <div class="card-section-label" style="margin-bottom: 12px;">QUICK ACTIONS</div>
+    <div class="bottom-actions-row">
+        <!-- Primary Action: Emphasized Analyze News -->
+        <a href="{% url 'detector' %}" class="btn-cyan" style="box-shadow: 0 0 16px rgba(34, 211, 238, 0.25);">
+            🔍 Analyze News
+        </a>
+
+        <!-- Secondary Action: History -->
+        <a href="{% url 'history' %}" class="btn-dark-action">
+            🕒 History
+        </a>
+
+        <!-- Secondary Action: Saved Articles -->
+        <a href="{% url 'reports' %}" class="btn-dark-action">
+            📄 Saved Articles
+        </a>
+
+        <!-- Secondary Action: AI Assistant -->
+        <button type="button" class="btn-dark-action" id="btn-dashboard-assistant">
+            💬 AI Assistant
+        </button>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Clickable table rows
+    document.querySelectorAll(".clickable-row").forEach(function(row) {
+        row.addEventListener("click", function(e) {
+            if (e.target.closest("a, button, input, form")) return;
+            var href = this.getAttribute("data-href");
+            if (href) window.location.href = href;
+        });
+    });
+
+    // 7D | 14D | 30D Timeline Range Switcher
+    var rangeBtns = document.querySelectorAll(".timeline-range-btn");
+    var views = {
+        "7": document.getElementById("chart-range-7"),
+        "14": document.getElementById("chart-range-14"),
+        "30": document.getElementById("chart-range-30")
+    };
+
+    rangeBtns.forEach(function(btn) {
+        btn.addEventListener("click", function() {
+            var range = this.getAttribute("data-range");
+            rangeBtns.forEach(function(b) { b.classList.remove("active"); });
+            this.classList.add("active");
+
+            Object.keys(views).forEach(function(r) {
+                if (views[r]) {
+                    views[r].style.display = (r === range) ? "flex" : "none";
+                }
+            });
+        });
+    });
+
+    // Dashboard Assistant Launcher
+    var assistBtn = document.getElementById("btn-dashboard-assistant");
+    if (assistBtn) {
+        assistBtn.addEventListener("click", function() {
+            if (typeof window.openTruthLensAssistant === "function") {
+                window.openTruthLensAssistant({ focus: true });
+            } else {
+                var trigger = document.getElementById("floating-assistant-btn");
+                if (trigger) trigger.click();
+            }
+        });
+    }
+});
+</script>
+
+{% endblock %}

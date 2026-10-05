@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Saved Articles · TruthLens AI{% endblock %}
+{% block content %}
+<style>
+.btn-delete-saved:hover {
+    background: rgba(239, 68, 68, 0.15) !important;
+    border-color: rgba(248, 113, 113, 0.5) !important;
+    color: #ef4444 !important;
+}
+</style>
+
+<!-- Saved Articles Header -->
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+    <div>
+        <div class="result-tag">SAVED</div>
+        <h1 class="result-title">Saved Articles</h1>
+        <p style="color: #94a3b8; font-size: 0.94rem; margin: 0;">
+            Your bookmarked verification reports, claim breakdowns, and evidence summaries.
+        </p>
+    </div>
+
+    {% if saved %}
+    <div style="position: relative; width: 280px; max-width: 100%;">
+        <input
+            type="text"
+            id="saved-search-input"
+            placeholder="Search saved articles..."
+            style="width: 100%; padding: 8px 14px 8px 34px; border-radius: var(--radius-pill); font-size: 0.85rem; background: #10192a; border: 1px solid #1e293b; color: #ffffff; outline: none;"
+            aria-label="Filter saved articles"
+        >
+        <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); opacity: 0.5; font-size: 0.85rem;">🔍</span>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Saved Articles Table Card -->
+<div class="card" style="padding: 12px 24px 20px;">
+    {% if saved %}
+        <div class="tl-table-wrap">
+            <table class="tl-table">
+                <tbody>
+                    {% for s in saved %}
+                        <tr class="saved-row-item clickable-row" id="saved-item-{{ s.id }}" data-search="{{ s.analysis.title|lower }} {{ s.analysis.extracted_text|lower }} {{ s.analysis.final_assessment|lower }}" data-href="{% url 'analysis_result' s.analysis.id %}">
+                            <!-- Article Headline / Snippet -->
+                            <td style="width: 44%;">
+                                <div style="font-weight: 500; color: #e2e8f0; line-height: 1.45; font-size: 0.92rem;">
+                                    {{ s.analysis.title|default:s.analysis.extracted_text|truncatechars:85 }}
+                                </div>
+                            </td>
+
+                            <!-- Input Type -->
+                            <td style="width: 12%; color: #94a3b8; font-size: 0.85rem; white-space: nowrap;">
+                                {{ s.analysis.get_input_type_display }}
+                            </td>
+
+                            <!-- Assessment Badge -->
+                            <td style="width: 18%; text-align: center;">
+                                <div style="display: inline-flex; flex-direction: column; align-items: center;">
+                                    {% if s.analysis.final_assessment == "LIKELY REAL" or not s.analysis.final_assessment and s.analysis.prediction == "REAL" %}
+                                        <div class="pill-verdict real" style="padding: 4px 14px; font-size: 0.8rem;">
+                                            ✓ LIKELY REAL
+                                        </div>
+                                    {% elif s.analysis.final_assessment == "LIKELY FAKE" or not s.analysis.final_assessment and s.analysis.prediction == "FAKE" %}
+                                        <div class="pill-verdict fake" style="padding: 4px 14px; font-size: 0.8rem;">
+                                            ⚠️ LIKELY FAKE
+                                        </div>
+                                    {% elif s.analysis.final_assessment == "MIXED / MISLEADING" or "MIXED" in s.analysis.final_assessment %}
+                                        <div class="pill-verdict warn" style="padding: 4px 14px; font-size: 0.8rem; background: rgba(249, 115, 22, 0.12); color: #ea580c; border: 1px solid rgba(249, 115, 22, 0.3);">
+                                            ⚠ MIXED
+                                        </div>
+                                    {% else %}
+                                        <div class="pill-verdict warn" style="padding: 4px 14px; font-size: 0.8rem;">
+                                            ? UNCERTAIN
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                            <!-- Date Saved -->
+                            <td style="width: 14%; color: #94a3b8; font-size: 0.85rem; white-space: nowrap; text-align: right;">
+                                {{ s.created_at|date:"M d, Y" }}
+                            </td>
+
+                            <!-- Actions -->
+                            <td style="width: 12%; text-align: right; padding-right: 0;">
+                                <div style="display: inline-flex; gap: 8px; align-items: center;">
+                                    <a href="{% url 'analysis_result' s.analysis.id %}" class="btn-dark-action" style="padding: 5px 12px; font-size: 0.82rem;">
+                                        View →
+                                    </a>
+                                    <button type="button" class="btn-dark-action btn-delete-saved" data-id="{{ s.id }}" data-url="{% url 'delete_saved_article' s.id %}" style="padding: 6px 9px; font-size: 0.82rem; color: #f87171; border-color: rgba(248, 113, 113, 0.25);" title="Remove from saved" aria-label="Remove from saved">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display: block;">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div id="no-saved-matches" style="display: none; text-align: center; padding: 40px 16px; color: #94a3b8;">
+            <p style="margin: 0; font-size: 0.95rem;">No matching saved articles found.</p>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 48px 16px; color: #94a3b8;" id="empty-saved-placeholder">
+            <div style="font-size: 2.2rem; margin-bottom: 12px;">📑</div>
+            <h3 style="color: #ffffff; margin-bottom: 6px;">No saved articles yet.</h3>
+            <p style="margin: 0 0 20px 0; font-size: 0.95rem;">Save analyses to easily reference their verification reports later.</p>
+            <a href="{% url 'detector' %}" class="btn-cyan">Verify an Article</a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Clickable rows
+    document.querySelectorAll(".clickable-row").forEach(function(row) {
+        row.addEventListener("click", function(e) {
+            if (e.target.closest("a, button, input, form")) return;
+            var href = this.getAttribute("data-href");
+            if (href) window.location.href = href;
+        });
+    });
+
+    var searchInput = document.getElementById("saved-search-input");
+    if (searchInput) {
+        searchInput.addEventListener("input", function() {
+            var query = this.value.toLowerCase().trim();
+            var rows = document.querySelectorAll(".saved-row-item");
+            var matchCount = 0;
+
+            rows.forEach(function(row) {
+                var searchStr = row.getAttribute("data-search") || "";
+                if (!query || searchStr.indexOf(query) !== -1) {
+                    row.style.display = "";
+                    matchCount++;
+                } else {
+                    row.style.display = "none";
+                }
+            });
+
+            var noMatches = document.getElementById("no-saved-matches");
+            if (noMatches) {
+                noMatches.style.display = (matchCount === 0 && rows.length > 0) ? "block" : "none";
+            }
+        });
+    }
+
+    function getCookie(name) {
+        var value = "; " + document.cookie;
+        var parts = value.split("; " + name + "=");
+        if (parts.length === 2) return parts.pop().split(";").shift();
+        return "";
+    }
+
+    document.querySelectorAll(".btn-delete-saved").forEach(function(btn) {
+        btn.addEventListener("click", function(e) {
+            e.stopPropagation();
+            var savedId = this.getAttribute("data-id");
+            var url = this.getAttribute("data-url");
+
+            if (confirm("Remove this article from saved?")) {
+                fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": getCookie("csrftoken"),
+                        "X-Requested-With": "XMLHttpRequest",
+                        "Accept": "application/json"
+                    }
+                }).then(function(res) {
+                    return res.json();
+                }).then(function(data) {
+                    if (data.success) {
+                        var row = document.getElementById("saved-item-" + savedId);
+                        if (row) row.remove();
+                        if (window.showToast) window.showToast("Article removed from saved.");
+                        var remaining = document.querySelectorAll(".saved-row-item");
+                        if (remaining.length === 0) {
+                            window.location.reload();
+                        }
+                    }
+                }).catch(function() {
+                    window.location.reload();
+                });
+            }
+        });
+    });
+});
+</script>
+
+{% endblock %}

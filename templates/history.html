@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Analysis History · TruthLens AI{% endblock %}
+{% block content %}
+
+<!-- History Header -->
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+    <div>
+        <div class="result-tag">HISTORY</div>
+        <h1 class="result-title">Analysis History</h1>
+        <p style="color: #94a3b8; font-size: 0.94rem; margin: 0;">
+            Review past news verifications, model predictions, and corroborating evidence reports.
+        </p>
+    </div>
+
+    {% if analyses %}
+    <div style="position: relative; width: 280px; max-width: 100%;">
+        <input
+            type="text"
+            id="history-search"
+            placeholder="Search history..."
+            style="width: 100%; padding: 8px 14px 8px 34px; border-radius: var(--radius-pill); font-size: 0.85rem; background: #10192a; border: 1px solid #1e293b; color: #ffffff; outline: none;"
+            aria-label="Filter history articles"
+        >
+        <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); opacity: 0.5; font-size: 0.85rem;">🔍</span>
+    </div>
+    {% endif %}
+</div>
+
+<!-- History Table Card (Exact structure of 06_reference.png) -->
+<div class="card" style="padding: 12px 24px 20px;">
+    {% if analyses %}
+        <div class="tl-table-wrap">
+            <table class="tl-table">
+                <tbody>
+                    {% for a in analyses %}
+                        <tr class="history-row-item clickable-row" data-search="{{ a.title|lower }} {{ a.extracted_text|lower }} {{ a.final_assessment|lower }} {{ a.prediction|lower }}" data-href="{% url 'analysis_result' a.id %}">
+                            <!-- Article Headline / Snippet -->
+                            <td style="width: 44%;">
+                                <div style="font-weight: 500; color: #e2e8f0; line-height: 1.45; font-size: 0.92rem;">
+                                    {{ a.title|default:a.extracted_text|truncatechars:85 }}
+                                </div>
+                            </td>
+
+                            <!-- Input Type -->
+                            <td style="width: 12%; color: #94a3b8; font-size: 0.85rem; white-space: nowrap;">
+                                {{ a.get_input_type_display }}
+                            </td>
+
+                            <!-- Assessment Badge -->
+                            <td style="width: 18%; text-align: center;">
+                                <div style="display: inline-flex; flex-direction: column; align-items: center;">
+                                    {% if a.final_assessment == "LIKELY REAL" or not a.final_assessment and a.prediction == "REAL" %}
+                                        <div class="pill-verdict real" style="padding: 4px 14px; font-size: 0.8rem;">
+                                            ✓ LIKELY REAL
+                                        </div>
+                                        {% if a.final_assessment == 'LIKELY REAL' and a.prediction == 'FAKE' %}
+                                            <div class="override-subtext">Evidence Overrode ML</div>
+                                        {% endif %}
+                                    {% elif a.final_assessment == "LIKELY FAKE" or not a.final_assessment and a.prediction == "FAKE" %}
+                                        <div class="pill-verdict fake" style="padding: 4px 14px; font-size: 0.8rem;">
+                                            ⚠️ LIKELY FAKE
+                                        </div>
+                                    {% elif a.final_assessment == "MIXED / MISLEADING" or "MIXED" in a.final_assessment %}
+                                        <div class="pill-verdict warn" style="padding: 4px 14px; font-size: 0.8rem; background: rgba(249, 115, 22, 0.12); color: #ea580c; border: 1px solid rgba(249, 115, 22, 0.3);">
+                                            ⚠ MIXED
+                                        </div>
+                                    {% else %}
+                                        <div class="pill-verdict warn" style="padding: 4px 14px; font-size: 0.8rem;">
+                                            ? UNCERTAIN
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                            <!-- Confidence Score -->
+                            <td style="width: 10%; text-align: center; font-family: var(--font-mono); color: #cbd5e1; font-size: 0.9rem;">
+                                {% if a.verification_confidence_score %}
+                                    {{ a.verification_confidence_score|floatformat:1 }}%
+                                {% elif a.confidence %}
+                                    {{ a.confidence|floatformat:1 }}%
+                                {% else %}
+                                    --
+                                {% endif %}
+                            </td>
+
+                            <!-- Date & Time -->
+                            <td style="width: 16%; color: #94a3b8; font-size: 0.85rem; white-space: nowrap; text-align: right;">
+                                {{ a.created_at|date:"M d, Y H:i" }}
+                            </td>
+
+                            <!-- Action View Button -->
+                            <td style="width: 8%; text-align: right; padding-right: 0;">
+                                <a href="{% url 'analysis_result' a.id %}" class="btn-dark-action" style="padding: 5px 12px; font-size: 0.82rem;">
+                                    View →
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div id="no-history-matches" style="display: none; text-align: center; padding: 40px 16px; color: #94a3b8;">
+            <p style="margin: 0; font-size: 0.95rem;">No matching verification records found.</p>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 48px 16px; color: #94a3b8;">
+            <div style="font-size: 2.2rem; margin-bottom: 12px;">📜</div>
+            <h3 style="color: #ffffff; margin-bottom: 6px;">No analysis history yet.</h3>
+            <p style="margin: 0 0 20px 0; font-size: 0.95rem;">Analyze news articles to build your verification log.</p>
+            <a href="{% url 'detector' %}" class="btn-cyan">Verify News Now</a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Clickable rows
+    document.querySelectorAll(".clickable-row").forEach(function(row) {
+        row.addEventListener("click", function(e) {
+            if (e.target.closest("a, button, input, form")) return;
+            var href = this.getAttribute("data-href");
+            if (href) window.location.href = href;
+        });
+    });
+
+    var searchInput = document.getElementById("history-search");
+    if (!searchInput) return;
+
+    searchInput.addEventListener("input", function() {
+        var query = this.value.toLowerCase().trim();
+        var rows = document.querySelectorAll(".history-row-item");
+        var matchCount = 0;
+
+        rows.forEach(function(row) {
+            var searchStr = row.getAttribute("data-search") || "";
+            if (!query || searchStr.indexOf(query) !== -1) {
+                row.style.display = "";
+                matchCount++;
+            } else {
+                row.style.display = "none";
+            }
+        });
+
+        var noMatches = document.getElementById("no-history-matches");
+        if (noMatches) {
+            noMatches.style.display = (matchCount === 0 && rows.length > 0) ? "block" : "none";
+        }
+    });
+});
+</script>
+
+{% endblock %}
